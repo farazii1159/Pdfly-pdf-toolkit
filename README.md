@@ -1094,11 +1094,6 @@ tesseract --version
 ocrmypdf --version
 ```
 
-7. **Install PM2**
-   ```bash
-   sudo npm install -g pm2
-   ```
-
 7. **Clone your GitHub repository**
    ```bash
    git clone https://github.com/farazii1159/Pdfly-pdf-toolkit.git
@@ -1128,7 +1123,7 @@ and
      git status
 ```
 
-10. **Configure environment variables**
+11. **Configure environment variables**
    ```bash
    cp .env.example .env.local
 
@@ -1141,31 +1136,36 @@ and
    SUPABASE_SERVICE_ROLE_KEY=...
    MAX_FILE_SIZE_MB=10
 ```
-11. **Build**
+12. **Build**
     ```bash
     npm run build
     ```
 
-12. **Start with PM2**
+13. **Install PM2**
+   ```bash
+   sudo npm install -g pm2
+   ```    
+
+14. **Start with PM2**
     ```bash
     pm2 start ecosystem.config.js
     ```
 
-13. **Configure PM2 startup**
+15. **Configure PM2 startup**
     ```bash
     pm2 startup
     pm2 save
     ```
 
-14. **Configure Nginx** — see Nginx section.
+16. **Configure Nginx** — see Nginx section.
 
-15. **Confirm EC2 security group** allows ports 22, 80, 443 only.
+17. **Confirm EC2 security group** allows ports 22, 80, 443 only.
 
-16. **Point your domain's DNS to the EC2 public IP** — see section 16.
+18. **Point your domain's DNS to the EC2 public IP** — see section 16.
 
-17. **Install Certbot and enable HTTPS** — see SSL with Certbot section.
+19. **Install Certbot and enable HTTPS** — see SSL with Certbot section.
 
-18. **Verify** — visit `https://your-domain.com`, sign up, and run a tool.
+20. **Verify** — visit `https://your-domain.com`, sign up, and run a tool.
 
 ---
 
