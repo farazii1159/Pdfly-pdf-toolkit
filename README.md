@@ -998,25 +998,6 @@ sudo apt install -y nginx
 sudo systemctl status nginx
 ```
 
-19. Allow HTTP and HTTPS in AWS Security Group
-
-Open your AWS EC2 Security Group.
-
-Add inbound rules for:
-
-Type	Protocol	Port	Source
-SSH	TCP	22	Your IP
-HTTP	TCP	80	0.0.0.0/0
-HTTPS	TCP	443	0.0.0.0/0
-
-For IPv6, you may also allow:
-
-::/0
-
-for HTTP and HTTPS if your setup uses IPv6.
-
-Do not expose port 3000 publicly unless there is a specific reason to do so. Nginx should proxy requests to the internal Next.js port.
-
 ## Create Nginx Configuration
 ```bash
 sudo nano /etc/nginx/sites-available/pdfly
