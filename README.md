@@ -1081,16 +1081,17 @@ Your site is now available at `https://your-domain.com`.
     tesseract-ocr \
     ocrmypdf
 ```
-Verify:
+
+**Verify**
 
 ```bash
-  soffice --version
-gs --version
-qpdf --version
-pdftoppm -v
-tesseract --version
-ocrmypdf --version
-   ```
+   soffice --version
+   gs --version
+   qpdf --version
+   pdftoppm -v
+   tesseract --version
+   ocrmypdf --version
+```
 
 7. **Install PM2**
    ```bash
