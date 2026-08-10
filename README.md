@@ -1008,7 +1008,11 @@ Paste:
 ```bash
 server {
     listen 80;
-    server_name app.farazshabbir.xyz;  #if you have domain or sub-domain
+
+    #server_name works only if you have domain or sub-domain
+    #otherwise keep server_name EMPTY.
+
+    server_name app.farazshabbir.xyz;  
 
     client_max_body_size 15M;
 
@@ -1070,6 +1074,12 @@ sudo systemctl reload nginx
 
 ```bash
 sudo systemctl status nginx
+```
+
+## Test Tool:
+
+```bash
+http://YOUR SUB-DOMAIN.XYZ
 ```
 
 ---
