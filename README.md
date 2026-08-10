@@ -1117,10 +1117,9 @@ ocrmypdf --version
     npm install
     ```
 9. **After npm check Project Directory and Status**
-  ```bash
+  ```
        pwd
-    ```
-
+```
 Expected:
 
    ```
