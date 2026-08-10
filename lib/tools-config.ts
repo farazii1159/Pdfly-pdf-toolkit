@@ -420,7 +420,7 @@ export const TOOLS: ToolConfig[] = [
   {
   slug: 'ocr',
   name: 'OCR PDF',
-  description: 'Convert scanned PDF text into searchable text.',
+  description: 'To make the text searchable first convert the JPG image to PDF then use the OCR tool to extract and recognize the text.',
   category: 'Advanced',
   icon: 'ScanText',
   status: 'working',
