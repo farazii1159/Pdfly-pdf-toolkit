@@ -987,25 +987,60 @@ pm2 restart pdfly
 
 # 🌐 Nginx Configuration
 
-Create `/etc/nginx/sites-available/pdfly`:
+```bash
+sudo apt update
+sudo apt install -y nginx
+```
 
-```nginx
+## Check Nginx:
+
+```bash
+sudo systemctl status nginx
+```
+
+19. Allow HTTP and HTTPS in AWS Security Group
+
+Open your AWS EC2 Security Group.
+
+Add inbound rules for:
+
+Type	Protocol	Port	Source
+SSH	TCP	22	Your IP
+HTTP	TCP	80	0.0.0.0/0
+HTTPS	TCP	443	0.0.0.0/0
+
+For IPv6, you may also allow:
+
+::/0
+
+for HTTP and HTTPS if your setup uses IPv6.
+
+Do not expose port 3000 publicly unless there is a specific reason to do so. Nginx should proxy requests to the internal Next.js port.
+
+## Create Nginx Configuration
+```bash
+sudo nano /etc/nginx/sites-available/pdfly
+```
+
+Paste:
+
+```bash
 server {
     listen 80;
-    server_name your-domain.com www.your-domain.com;
+    server_name _;
 
     client_max_body_size 15M;
 
     location / {
         proxy_pass http://127.0.0.1:3000;
         proxy_http_version 1.1;
+
         proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
+        proxy_set_header Connection "upgrade";
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_cache_bypass $http_upgrade;
     }
 
     add_header X-Frame-Options "SAMEORIGIN" always;
@@ -1014,15 +1049,47 @@ server {
 }
 ```
 
-Enable it:
+## Save Nginx Configuration
 
+```
+Ctrl + O
+Enter
+Ctrl + X
+```
+
+## Enable PDFly Nginx Configuration
+
+Create a symbolic link:
 ```bash
 sudo ln -s /etc/nginx/sites-available/pdfly /etc/nginx/sites-enabled/pdfly
+```
+
+## Remove default Nginx configuration
+```bash
+sudo rm -f /etc/nginx/sites-enabled/default
+```
+
+## Run:
+
+```bash
 sudo nginx -t
+```
+
+Expected output:
+
+syntax is ok
+test is successful
+
+## If the test is successful, reload Nginx:
+```bash
 sudo systemctl reload nginx
 ```
 
-Port 3000 stays internal — do not open it in your EC2 security group.
+## Check:
+
+```bash
+sudo systemctl status nginx
+```
 
 ---
 
@@ -1162,6 +1229,7 @@ and
     ```
 
 15. **Configure Nginx** — see Nginx section.
+
 
 16. **Confirm EC2 security group** allows ports 22, 80, 443 only.
 
