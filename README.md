@@ -1077,9 +1077,11 @@ sudo systemctl status nginx
 # 🔒 SSL with Certbot
 
 ```bash
+sudo apt update
+
 sudo apt install -y certbot python3-certbot-nginx
 
-sudo certbot --nginx -d your-domain.com -d www.your-domain.com
+sudo certbot --nginx -d your-domain.com -d .your-sub-domain.com
 ```
 
 Test Renewal:
