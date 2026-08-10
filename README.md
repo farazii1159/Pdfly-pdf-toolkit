@@ -1245,7 +1245,7 @@ Expected:
 | Type | Name  | Value               |
 | ---- | ----- | -------------------- |
 | A    | `@`   | `<EC2_PUBLIC_IP>`     |
-| A    | `www` | `<EC2_PUBLIC_IP>`     |
+| A    | `app` | `<EC2_PUBLIC_IP>`     |
 
 For a subdomain instead (e.g. `app.yourdomain.com`), add an `A` record for
 `app` pointing to the same IP. Exact steps depend on your DNS provider.
