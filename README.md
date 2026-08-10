@@ -1,110 +1,398 @@
 # PDFly
 
-An all-in-one, simple PDF toolkit. Sign up, upload a file, pick a tool —
-merge, split, compress, convert, rotate, watermark, protect — and download
-the result. Built with Next.js (App Router + TypeScript) and Supabase for
-auth, storage, and history. Upgraded from the original Word2PDF project;
-the original Word → PDF conversion still works unchanged.
+**PDFly** is a simple, all-in-one online PDF toolkit for converting, managing,
+editing, and processing PDF files from one place.
 
-**Live demo:** _add your URL after deployment_
-**Repository:** _add your GitHub URL_
+Users can create an account, choose a PDF tool, upload files, process them,
+download the result, and manage their processed files from the **My Files**
+section.
+
+The project was originally started as a **Word2PDF** converter and was later
+expanded into a complete PDF toolkit.
 
 ---
 
-## 1. Features
+## 🌐 Live Demo
 
-- Email/password authentication (sign up, log in, log out, password reset) via Supabase Auth
-- Protected dashboard, tool pages, file history, and profile — logged-out users are redirected to `/login`
-- A searchable dashboard of PDF tools grouped by category
-- 12 fully working tools (see below) plus clearly labeled "Coming Soon" tools — nothing fake
-- Per-user file history ("My Files") with download and delete, protected by Supabase Row Level Security
-- Original Word → PDF converter (`/api/convert`) preserved and still functional
-- Clean, responsive, mobile-first SaaS UI (Tailwind CSS + Lucide icons)
-- Production-ready for a single Ubuntu EC2 instance with PM2 + Nginx + HTTPS
+**Live Website:** Add your deployed website URL here
 
-## 2. Working Tools
+**GitHub Repository:** Add your GitHub repository URL here
 
-| Tool | What it does |
-| --- | --- |
-| Word to PDF | Converts `.docx` to PDF (LibreOffice headless — original feature) |
-| Merge PDF | Combines multiple PDFs into one |
-| Split PDF | Extracts a page range (e.g. `1-3,5`) into a new PDF |
-| Compress PDF | Reduces file size via Ghostscript (low/medium/high) |
-| JPG to PDF | Combines JPG/PNG images into a PDF, one image per page |
-| PDF to JPG | Rasterizes each page to JPG, delivered as a `.zip` |
-| Rotate PDF | Rotates every page 90° / 180° / 270° |
-| Watermark | Adds a diagonal text watermark to every page |
-| Protect PDF | Password-encrypts a PDF (via `qpdf`) |
-| Unlock PDF | Removes password protection given the current password (via `qpdf`) |
-| Page Numbers | Adds "n / total" numbering to every page |
-| Organize PDF | Reorders and/or drops pages via a page-order list (e.g. `3,1,2`) |
+---
 
-**Coming Soon** (shown in the dashboard, clearly labeled, no working upload form):
-PDF to PowerPoint, PDF to Excel, PowerPoint to PDF, Excel to PDF, HTML to PDF,
-PDF to Markdown, Crop PDF, Edit PDF, Sign PDF, PDF Forms, Redact PDF, OCR PDF,
-Repair PDF, Compare PDF, PDF to PDF/A, AI Summarizer, Translate PDF, Scan to
-PDF, Create a Workflow.
+## ✨ Features
 
-## 3. Tech Stack
+PDFly provides a clean and simple interface for common PDF operations.
 
-| Layer           | Technology                                        |
-| ---------------- | -------------------------------------------------- |
-| Framework        | Next.js (App Router, TypeScript)                   |
-| Styling          | Tailwind CSS                                       |
-| Icons            | lucide-react                                       |
-| Auth             | Supabase Auth (`@supabase/ssr`)                    |
-| Database         | Supabase PostgreSQL (+ Row Level Security)         |
-| File storage     | Supabase Storage                                   |
-| PDF processing   | `pdf-lib` (merge/split/rotate/watermark/organize/page numbers/images) |
-| System tools     | LibreOffice (Word→PDF), Ghostscript (compress), qpdf (protect/unlock), poppler-utils (PDF→JPG) |
-| Zipping          | `jszip` (for multi-page JPG downloads)             |
-| Process manager  | PM2                                                 |
-| Reverse proxy    | Nginx                                               |
-| SSL              | Let's Encrypt via Certbot                          |
+### 🔐 Authentication
 
-## 4. Project Structure
+- User Sign Up
+- User Login
+- User Logout
+- Password Reset
+- Password Update
+- Supabase Authentication
+- Protected dashboard and tool pages
+- Protected file history
+- User-specific data through Supabase Row Level Security (RLS)
 
-```
+### 📄 PDF Tools
+
+PDFly currently includes multiple working PDF tools:
+
+- Word to PDF
+- PowerPoint to PDF
+- Excel to PDF
+- HTML to PDF
+- PDF to Markdown
+- Merge PDF
+- Split PDF
+- Compress PDF
+- JPG to PDF
+- PDF to JPG
+- Scan to PDF
+- Rotate PDF
+- PDF to PDF/A
+- Edit PDF
+- Sign PDF
+- Watermark PDF
+- Protect PDF
+- Unlock PDF
+- Page Numbers
+- Organize PDF
+
+### 📁 My Files
+
+The **My Files** section allows users to manage their previous file operations.
+
+Users can:
+
+- View previously processed files
+- Download completed files
+- Delete individual files
+- Delete all files at once using **Clear All**
+- See the tool used for each file
+- See file processing status
+- See the date and time of each operation
+
+Each user's file history is protected so users can only access their own
+records.
+
+### 🔎 Dashboard
+
+The dashboard provides:
+
+- PDF tool categories
+- Searchable tools
+- Working tool cards
+- Coming Soon tool cards
+- Simple navigation
+- Responsive layout
+
+### 📱 Responsive UI
+
+PDFly is designed to work across:
+
+- Desktop
+- Laptop
+- Tablet
+- Mobile
+
+The interface uses Tailwind CSS and Lucide icons for a clean and modern
+experience.
+
+---
+
+# 🛠️ Working Tools
+
+The following tools are currently implemented and functional.
+
+| Tool | Description |
+|---|---|
+| **Word to PDF** | Converts `.docx` files into PDF using LibreOffice |
+| **Merge PDF** | Combines multiple PDF files into a single PDF |
+| **Split PDF** | Extracts selected pages/ranges from a PDF |
+| **Compress PDF** | Reduces PDF file size using Ghostscript |
+| **JPG to PDF** | Converts JPG/PNG images into a PDF |
+| **PDF to JPG** | Converts PDF pages into JPG images and provides them as a ZIP file |
+| **Rotate PDF** | Rotates PDF pages by 90°, 180°, or 270° |
+| **Watermark PDF** | Adds a text watermark to PDF pages |
+| **Protect PDF** | Password-protects a PDF using qpdf |
+| **Unlock PDF** | Removes password protection when the current password is provided |
+| **Page Numbers** | Adds page numbers to PDF pages |
+| **Organize PDF** | Reorders or removes pages using a page-order list |
+
+---
+
+# 🚧 Coming Soon Tools
+
+The dashboard also contains clearly labelled **Coming Soon** tools.
+
+These are intentionally not presented as working features.
+
+Planned tools include:
+
+- PDF to PowerPoint
+- PDF to Excel
+- Crop PDF
+- PDF Forms
+- Redact PDF
+- OCR PDF
+- Repair PDF
+- Compare PDF
+- AI Summarizer
+- Translate PDF
+- Create a Workflow
+
+---
+
+# 🧑‍💻 How to Use PDFly
+
+Using PDFly is simple.
+
+## Step 1 — Create an Account
+
+Open the PDFly website and click:
+
+**Sign Up**
+
+Enter:
+
+- Email
+- Password
+
+Complete the email confirmation if enabled.
+
+---
+
+## Step 2 — Login
+
+After creating your account, log in using your email and password.
+
+You will be redirected to the dashboard.
+
+---
+
+## Step 3 — Choose a Tool
+
+From the dashboard, select the PDF tool you want to use.
+
+For example:
+
+- Word to PDF
+- Merge PDF
+- Split PDF
+- Compress PDF
+- JPG to PDF
+- PDF to JPG
+- Rotate PDF
+- Watermark PDF
+- Protect PDF
+- Unlock PDF
+- Page Numbers
+- Organize PDF
+
+You can also use the dashboard search to find a tool quickly.
+
+---
+
+## Step 4 — Upload Your File
+
+Open the required tool and upload the file or files needed for that operation.
+
+The tool validates the uploaded files before processing them.
+
+---
+
+## Step 5 — Process the File
+
+Click the appropriate action button to start processing.
+
+PDFly processes the file on the server using the required PDF libraries or
+system utilities.
+
+---
+
+## Step 6 — Download the Result
+
+After successful processing, download the generated file.
+
+The operation is also saved in your **My Files** section.
+
+---
+
+# 📁 Managing Files
+
+Open:
+
+**Dashboard → My Files**
+
+The My Files section shows your recent file operations.
+
+For each file, you can see:
+
+- Original filename
+- Tool used
+- Processing status
+- Date and time
+
+### Download
+
+Click the download button to generate a secure temporary download link for
+the processed file.
+
+### Delete One File
+
+Click the trash/delete button next to a file.
+
+You will be asked for confirmation before the file is deleted.
+
+### Clear All
+
+Use the **Clear All** button to remove all currently displayed file history
+records and their associated output files.
+
+This action requires confirmation before deletion.
+
+> **Warning:** Clear All permanently removes the selected user's file
+> records and associated stored output files. It cannot be undone.
+
+---
+
+# 🧰 Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Framework | Next.js 15 |
+| Language | TypeScript |
+| Routing | Next.js App Router |
+| Styling | Tailwind CSS |
+| Icons | Lucide React |
+| Authentication | Supabase Auth |
+| Database | Supabase PostgreSQL |
+| Database Security | Supabase Row Level Security |
+| File Storage | Supabase Storage |
+| PDF Processing | pdf-lib |
+| Word → PDF | LibreOffice |
+| PDF Compression | Ghostscript |
+| PDF Security | qpdf |
+| PDF → JPG | poppler-utils |
+| ZIP Creation | JSZip |
+| Process Manager | PM2 |
+| Reverse Proxy | Nginx |
+| SSL | Let's Encrypt + Certbot |
+| Hosting | AWS EC2 |
+
+---
+
+# 🏗️ Project Architecture
+
+PDFly uses a Next.js App Router architecture.
+
+```text
+User
+ │
+ ▼
+Next.js Frontend
+ │
+ ├── Authentication ──────► Supabase Auth
+ │
+ ├── Dashboard
+ │
+ ├── PDF Tools
+ │      │
+ │      ├── pdf-lib
+ │      ├── LibreOffice
+ │      ├── Ghostscript
+ │      ├── qpdf
+ │      └── poppler-utils
+ │
+ ├── My Files
+ │      │
+ │      ├── Supabase PostgreSQL
+ │      └── Supabase Storage
+ │
+ └── API Route Handlers
+        │
+        ▼
+     Server-side Processing
+
+ ``` 
+
+---
+
+# 📂 Project Structure
+
 pdfly/
-├── middleware.ts               # Refreshes auth session + protects routes
 ├── app/
 │   ├── api/
-│   │   ├── convert/route.ts    # Legacy Word→PDF endpoint (unchanged, still works)
-│   │   ├── tools/route.ts      # Unified endpoint for all working tools
-│   │   └── health/route.ts     # Health check (LibreOffice + env vars)
-│   ├── auth/callback/route.ts  # Supabase email confirmation / reset link handler
-│   ├── login/, signup/, reset-password/, update-password/   # Auth pages
-│   ├── dashboard/page.tsx      # Tool grid + search (protected)
-│   ├── tools/[tool]/page.tsx   # Generic tool workspace or "Coming Soon" (protected)
-│   ├── files/page.tsx          # "My Files" history (protected)
-│   ├── profile/page.tsx        # Profile (protected)
-│   └── page.tsx                # Public landing page
+│   │   ├── convert/
+│   │   │   └── route.ts
+│   │   ├── tools/
+│   │   │   └── route.ts
+│   │   └── health/
+│   │       └── route.ts
+│   │
+│   ├── auth/
+│   │   └── callback/
+│   │       └── route.ts
+│   │
+│   ├── dashboard/
+│   │   └── page.tsx
+│   │
+│   ├── files/
+│   │   └── page.tsx
+│   │
+│   ├── profile/
+│   │   └── page.tsx
+│   │
+│   ├── tools/
+│   │   └── [tool]/
+│   │       └── page.tsx
+│   │
+│   ├── login/
+│   ├── signup/
+│   ├── reset-password/
+│   ├── update-password/
+│   │
+│   └── page.tsx
+│
 ├── components/
-│   ├── landing/                # Landing page sections
-│   ├── auth/                    # Auth shell/layout
-│   ├── dashboard/               # Header, tool cards, search
-│   ├── files/                   # File history list
-│   ├── tools/                   # ToolWorkspace (generic) + ComingSoon
-│   └── ui/                      # Small shared UI (Alert)
+│   ├── auth/
+│   ├── dashboard/
+│   ├── files/
+│   ├── landing/
+│   ├── tools/
+│   └── ui/
+│
 ├── lib/
-│   ├── tools-config.ts         # Single source of truth for every tool
-│   ├── pdf-tools.ts             # pdf-lib based operations
-│   ├── system-tools.ts          # qpdf / ghostscript / pdftoppm wrappers
-│   ├── convert.ts               # Original LibreOffice DOCX→PDF utility
-│   ├── utils.ts                  # Filename sanitizing, size formatting, validation
+│   ├── convert.ts
+│   ├── pdf-tools.ts
+│   ├── system-tools.ts
+│   ├── tools-config.ts
+│   ├── utils.ts
+│   │
 │   └── supabase/
-│       ├── client.ts             # Browser Supabase client
-│       ├── server.ts             # Server client (RLS) + admin client (service role)
-│       └── middleware.ts         # Session refresh + route protection helper
+│       ├── client.ts
+│       ├── server.ts
+│       └── middleware.ts
+│
 ├── supabase/
-│   ├── schema.sql               # Original schema (conversions table + buckets)
-│   └── migration_v2.sql         # New: file_operations table, RLS, images bucket
-├── ecosystem.config.js          # PM2 config
+│   ├── schema.sql
+│   └── migration_v2.sql
+│
+├── ecosystem.config.js
+├── middleware.ts
 ├── .env.example
+├── .gitignore
+├── package.json
 └── README.md
-```
 
-## 5. Authentication
+
+
+---
+
+# 🔐 Authentication
 
 Implemented with Supabase Auth via `@supabase/ssr`:
 
