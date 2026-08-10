@@ -1257,7 +1257,7 @@ For a subdomain instead (e.g. `app.yourdomain.com`), add an `A` record for
 PDFly includes the following health check endpoint:
 
 ```text
-/api/health
+https://app.your domain.xyz/api/health/api/health
 ```
 
 Use this endpoint to confirm that the application is running and to checkavailable server-side dependencies when supported by the current healthimplementation.
