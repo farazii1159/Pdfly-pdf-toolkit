@@ -1081,10 +1081,11 @@ Your site is now available at `https://your-domain.com`.
     tesseract-ocr \
     ocrmypdf
 ```
+---
 
-**Verify**
+**Verify**  
 
-```bash
+   ```bash
    soffice --version
    gs --version
    qpdf --version
@@ -1092,6 +1093,7 @@ Your site is now available at `https://your-domain.com`.
    tesseract --version
    ocrmypdf --version
 ```
+---
 
 7. **Install PM2**
    ```bash
