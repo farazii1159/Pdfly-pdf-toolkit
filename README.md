@@ -1081,8 +1081,7 @@ Your site is now available at `https://your-domain.com`.
     tesseract-ocr \
     ocrmypdf
 ```
-
-   ```
+   ```bash
    soffice --version
    gs --version
    qpdf --version
