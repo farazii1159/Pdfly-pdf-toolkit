@@ -1060,7 +1060,7 @@ Your site is now available at `https://your-domain.com`.
    sudo apt update && sudo apt upgrade -y
    ```
 
-4. **Install Node.js (v20 LTS)**
+4. **Install Node.js (v20 LTS) also use (v22 setup)**
    ```bash
    curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
    sudo apt install -y nodejs
