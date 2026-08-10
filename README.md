@@ -322,7 +322,7 @@ Next.js Frontend
 ---
 
 # 📂 Project Structure
-
+```
 pdfly/
 ├── app/
 │   ├── api/
@@ -388,10 +388,10 @@ pdfly/
 ├── package.json
 └── README.md
 
+```
 
-```
 ---
-```
+
 # 🔐 Authentication
 
 Implemented with Supabase Auth via `@supabase/ssr`:
