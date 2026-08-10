@@ -527,31 +527,19 @@ Requirements: Node.js 18.18+ and, for full tool functionality, LibreOffice,
 Ghostscript, qpdf, and poppler-utils installed locally (see section 9).
 
 ```bash
-git clone <your-repo-url> pdfly
-cd pdfly
+git clone https://github.com/farazii1159/Pdfly-pdf-toolkit.git
+
+cd Pdfly-pdf-toolkit
+
 npm install
+
 cp .env.example .env.local
 # fill in .env.local with your Supabase values (see section 8)
 ```
 
-## 7. Supabase Setup
+---
 
-1. Create a project at [supabase.com](https://supabase.com) (or reuse your
-   existing Word2PDF project).
-2. Open **SQL Editor** → **New query**, paste the contents of
-   [`supabase/schema.sql`](./supabase/schema.sql), and click **Run**
-   (skip if you already ran this for Word2PDF).
-3. Run [`supabase/migration_v2.sql`](./supabase/migration_v2.sql) the same
-   way — this adds the `file_operations` table, Row Level Security policies,
-   and the `images` storage bucket used by the new tools.
-4. If any bucket wasn't created by the SQL, create it manually under
-   **Storage** → **New bucket**: `word-files`, `pdf-files`, `images` — all
-   **private** (Public bucket off).
-5. Under **Authentication** → **URL Configuration**, set the **Site URL** to
-   your deployed URL (or `http://localhost:3000` for local dev) so
-   confirmation/reset emails link back correctly.
-
-## 8. Environment Variables
+# 🔑 Environment Variables
 
 Copy `.env.example` to `.env.local` and fill in:
 
@@ -561,11 +549,33 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
 MAX_FILE_SIZE_MB=10
 ```
+Get these from Supabase → **Project Settings** → **API**.
+Never commit `.env.local` — it's already excluded in `.gitignore`.
 
-Get these from Supabase → **Project Settings** → **API**. Never commit
-`.env.local` — it's already excluded in `.gitignore`.
+---
 
-## 9. System Dependencies (server-side tool binaries)
+# 🗄️ Supabase Setup
+
+1. Create a project at [supabase.com](https://supabase.com).
+
+2. Open **SQL Editor** → **New query**, paste the contents of
+   [`supabase/schema.sql`](./supabase/schema.sql), and click **Run**.
+
+3. Run [`supabase/migration_v2.sql`](./supabase/migration_v2.sql) the same
+   way — this adds the `file_operations` table, Row Level Security policies,
+   and the `images` storage bucket used by the new tools.
+
+4. If any bucket wasn't created by the SQL, create it manually under
+   **Storage** → **New bucket**: `word-files`, `pdf-files`, `images` — all
+   **private** (Public bucket off).
+
+5. Under **Authentication** → **URL Configuration**, set the **Site URL** to
+   your deployed URL (or `http://localhost:3000` for local dev) so
+   confirmation/reset emails link back correctly.
+
+ ---  
+
+#  System Dependencies (server-side tool binaries)
 
 Several tools shell out to well-established command-line binaries instead of
 reinventing PDF processing. Install these on your server (and locally if you
