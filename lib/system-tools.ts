@@ -1,3 +1,5 @@
+import { execFileSync } from 'child_process';
+
 import { execFile } from 'child_process';
 import { promisify } from 'util';
 import { randomUUID } from 'crypto';
@@ -295,10 +297,19 @@ export async function pdfToPdfA(
         ? 'gswin64c'
         : 'gs';
 
-    const gsRoot =
-      process.platform === 'win32'
-        ? 'C:\\Program Files\\gs\\gs10.07.1'
-        : '/usr/share/ghostscript';
+        const gsRoot =
+  process.platform === 'win32'
+    ? 'C:\\Program Files\\gs\\gs10.07.1'
+    : path.join(
+        '/usr/share/ghostscript',
+        execFileSync('gs', ['--version'], { encoding: 'utf8' }).trim()
+      );
+
+
+    // const gsRoot =
+    //   process.platform === 'win32'
+    //     ? 'C:\\Program Files\\gs\\gs10.07.1'
+    //     : '/usr/share/ghostscript';
 
     const originalPdfaDef = path.join(
       gsRoot,
