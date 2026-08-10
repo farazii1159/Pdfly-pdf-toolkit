@@ -1099,9 +1099,10 @@ ocrmypdf --version
    sudo npm install -g pm2
    ```
 
-8. **Clone your GitHub repository**
+7. **Clone your GitHub repository**
    ```bash
    git clone https://github.com/farazii1159/Pdfly-pdf-toolkit.git
+
    cd Pdfly-pdf-toolkit
    ```
 
@@ -1111,11 +1112,25 @@ ocrmypdf --version
    nano .env.local
    ```
 
-10. **Install dependencies**
+8. **Install dependencies**
     ```bash
     npm install
     ```
+9. **After npm check Project Directory and Status**
+  ```bash
+       pwd
+    ```
 
+Expected:
+
+   ```
+    /home/ubuntu/Pdfly-pdf-toolkit
+   ```
+and
+
+   ```bash
+     git status
+```
 11. **Build**
     ```bash
     npm run build
