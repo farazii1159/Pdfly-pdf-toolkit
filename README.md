@@ -1008,7 +1008,7 @@ Paste:
 ```bash
 server {
     listen 80;
-    server_name _;
+    server_name app.farazshabbir.xyz;  #if you have domainor sub-domain
 
     client_max_body_size 15M;
 
@@ -1216,8 +1216,7 @@ and
     pm2 status
     ```
 
-15. **Configure Nginx** — see Nginx section.
-
+15. **Configure Nginx** — see Nginx section in Above.
 
 16. **Confirm EC2 security group** allows ports 22, 80, 443 only.
 
