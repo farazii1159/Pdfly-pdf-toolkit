@@ -932,37 +932,6 @@ Never commit `.env.local` — it's already excluded in `.gitignore`.
    your deployed URL (or `http://localhost:3000` for local dev) so
    confirmation/reset emails link back correctly.
 
- ---  
-
-#  System Dependencies (server-side tool binaries)
-
-Several tools shell out to well-established command-line binaries instead of
-reinventing PDF processing. Install these on your server (and locally if you
-want to test them):
-
-```bash
-sudo apt update
-sudo apt install -y libreoffice ghostscript qpdf poppler-utils
-```
-
-| Binary | Used by |
-| --- | --- |
-| `soffice` (LibreOffice) | Word to PDF |
-| `gs` (Ghostscript) | Compress PDF |
-| `qpdf` | Protect PDF, Unlock PDF |
-| `pdftoppm` (poppler-utils) | PDF to JPG |
-
-Check `/api/health` after starting the app — it reports whether LibreOffice
-is available; you can extend it, but a quick manual check works too:
-
-```bash
-soffice --version && gs --version && qpdf --version && pdftoppm -v
-```
-
-Tools implemented purely in JavaScript (`pdf-lib`, `jszip`) — Merge, Split,
-Rotate, Watermark, Page Numbers, Organize, JPG to PDF — need **no** extra
-system binaries.
-
 ---
 
 # 🚀 Running Locally
