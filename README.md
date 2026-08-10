@@ -1008,7 +1008,7 @@ Paste:
 ```bash
 server {
     listen 80;
-    server_name app.farazshabbir.xyz;  #if you have domainor sub-domain
+    server_name app.farazshabbir.xyz;  #if you have domain or sub-domain
 
     client_max_body_size 15M;
 
