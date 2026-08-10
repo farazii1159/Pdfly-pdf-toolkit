@@ -1071,23 +1071,27 @@ Your site is now available at `https://your-domain.com`.
    sudo apt install -y git
    ```
 
-6. **Install the PDF system tools Verify** (see section 9)
-   ```bash
-   sudo apt install -y \
-    libreoffice \
-    ghostscript \
-    qpdf \
-    poppler-utils \
-    tesseract-ocr \
-    ocrmypdf
+6. **Install the required PDF processing tools**
+
+```bash
+sudo apt install -y \
+  libreoffice \
+  ghostscript \
+  qpdf \
+  poppler-utils \
+  tesseract-ocr \
+  ocrmypdf
 ```
-   ```bash
-   soffice --version
-   gs --version
-   qpdf --version
-   pdftoppm -v
-   tesseract --version
-   ocrmypdf --version
+
+**Verify that all required tools are installed correctly**
+
+```bash
+soffice --version
+gs --version
+qpdf --version
+pdftoppm -v
+tesseract --version
+ocrmypdf --version
 ```
 
 7. **Install PM2**
