@@ -393,17 +393,124 @@ pdfly/
 
 # 🔐 Authentication
 
-Implemented with Supabase Auth via `@supabase/ssr`:
+Authentication is implemented using **Supabase Auth**.
 
-- **Sign up** (`/signup`) — email + password, sends a confirmation email.
-- **Log in** (`/login`) — email + password, friendly error messages.
-- **Forgot password** (`/reset-password` → email link → `/update-password`).
-- **Logout** — available from the dashboard header and profile page.
-- **Route protection** — `middleware.ts` redirects unauthenticated users away
-  from `/dashboard`, `/tools/*`, `/files`, and `/profile` to `/login`, and
-  redirects logged-in users away from the auth pages to `/dashboard`.
-- The `SUPABASE_SERVICE_ROLE_KEY` is only ever used inside Route Handlers
-  (`lib/supabase/server.ts` → `getSupabaseAdmin()`), never in the browser.
+PDFly provides the following authentication features:
+
+- Sign Up
+- Login
+- Logout
+- Password Reset
+- Password Update
+- Email Confirmation
+- Protected Routes
+
+The following areas require authentication:
+
+```text
+/dashboard
+/tools/*
+/files
+/profile
+```
+
+Unauthenticated users are automatically redirected to the login page.
+
+Authenticated users are redirected to the dashboard when they try to access
+authentication pages unnecessarily.
+
+---
+
+# 🗃️ Database & File Storage
+
+PDFly uses Supabase for both database functionality and file storage.
+
+## Database
+
+The application stores file operation history in:
+
+```
+file_operations
+```
+
+The table stores information such as:
+
+- File ID
+- Original filename
+- Output file path
+- Tool name
+- Processing status
+- Created date
+- User ownership
+
+---
+
+# Storage Buckets
+
+PDFly uses private Supabase Storage buckets.
+
+Typical buckets include:
+
+```
+word-files
+pdf-files
+images
+```
+
+The application generates signed URLs when users download files instead of
+making the stored files publicly accessible.
+
+---
+
+# 🛡️ Security
+
+PDFly uses several security measures.
+
+## Supabase Row Level Security
+
+Database records are protected using Supabase RLS.
+
+Users can only access their own file operation records.
+
+## Private Storage
+
+Files are stored in private Supabase Storage buckets.
+
+## Signed Downloads
+
+Download links are generated temporarily using signed URLs.
+
+## Service Role Key
+
+The Supabase service role key is used only on the server.
+
+It must never be exposed in client-side code.
+
+## Environment Variables
+
+Sensitive configuration is stored in `.env.local.`
+
+`.env.local` must never be committed to GitHub.
+
+---
+
+# ⚙️ Requirements
+
+For local development you should have:
+
+- Node.js 18.18 or newer
+- npm
+- Git
+- Supabase project
+
+For all PDF tools to work, install:
+
+- LibreOffice
+- Ghostscript
+- qpdf
+- poppler-utils
+
+---
 
 ## 6. Local Installation
 
