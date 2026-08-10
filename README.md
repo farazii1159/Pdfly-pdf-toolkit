@@ -1153,6 +1153,9 @@ and
 
 14. **Configure PM2 startup**
     ```bash
+    pm2 --version
+
+    
     pm2 startup
     pm2 save
     ```
