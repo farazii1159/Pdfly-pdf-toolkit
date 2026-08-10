@@ -1131,10 +1131,16 @@ and
 10. **Configure environment variables**
    ```bash
    cp .env.example .env.local
-   
+
    nano .env.local
    ```
-
+**Fill the Supabase Variables**
+```
+   NEXT_PUBLIC_SUPABASE_URL=...
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+   SUPABASE_SERVICE_ROLE_KEY=...
+   MAX_FILE_SIZE_MB=10
+```
 11. **Build**
     ```bash
     npm run build
