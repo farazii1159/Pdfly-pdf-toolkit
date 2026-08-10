@@ -1074,12 +1074,12 @@ Your site is now available at `https://your-domain.com`.
 6. **Install the PDF system tools** (see section 9)
    ```bash
    sudo apt install -y \
-  libreoffice \
-  ghostscript \
-  qpdf \
-  poppler-utils \
-  tesseract-ocr \
-  ocrmypdf
+    libreoffice \
+    ghostscript \
+    qpdf \
+    poppler-utils \
+    tesseract-ocr \
+    ocrmypdf
 ```
 Verify:
 
