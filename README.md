@@ -1106,30 +1106,35 @@ ocrmypdf --version
    cd Pdfly-pdf-toolkit
    ```
 
-9. **Configure environment variables**
-   ```bash
-   cp .env.example .env.local
-   nano .env.local
-   ```
-
 8. **Install dependencies**
     ```bash
     npm install
     ```
+
 9. **After npm check Project Directory and Status**
   ```
        pwd
 ```
+
 Expected:
 
    ```
     /home/ubuntu/Pdfly-pdf-toolkit
    ```
+
 and
 
    ```bash
      git status
 ```
+
+10. **Configure environment variables**
+   ```bash
+   cp .env.example .env.local
+   
+   nano .env.local
+   ```
+
 11. **Build**
     ```bash
     npm run build
