@@ -1155,9 +1155,10 @@ and
     ```bash
     pm2 --version
 
-    
     pm2 startup
     pm2 save
+
+    pm2 status
     ```
 
 15. **Configure Nginx** — see Nginx section.
