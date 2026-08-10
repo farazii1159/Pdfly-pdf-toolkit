@@ -16,7 +16,7 @@ expanded into a complete PDF toolkit.
 
 **Live Website:** Add your deployed website URL here
 
-**GitHub Repository:** Add your GitHub repository URL here
+**GitHub Repository:** https://github.com/farazii1159/Pdfly-pdf-toolkit
 
 ---
 
@@ -32,11 +32,12 @@ PDFly provides a clean and simple interface for common PDF operations.
 - Password Reset
 - Password Update
 - Supabase Authentication
+- Email confirmation
 - Protected dashboard and tool pages
 - Protected file history
 - User-specific data through Supabase Row Level Security (RLS)
 
-### 📄 PDF Tools
+### 📄 Working PDF Tools
 
 PDFly currently includes multiple working PDF tools:
 
@@ -61,8 +62,343 @@ PDFly currently includes multiple working PDF tools:
 - Unlock PDF
 - Page Numbers
 - Organize PDF
+- Repair PDF
 
-### 📁 My Files
+**Important:** PDFly uses both JavaScript/Node.js packages and server-sidecommand-line programs. Installing only npm packages is not enough forevery tool. See the Dependencies section below.
+
+---
+
+# 🧰 Tool → Dependency Map
+
+This is the most important setup reference for developers and server
+administrators.
+
+| Tool | npm / Package Dependency | Server / System Dependency |
+|---|---|---|
+| **Word to PDF** | Node.js + project code | **LibreOffice** (`soffice`) |
+| **PowerPoint to PDF** | Node.js + project code | **LibreOffice** (`soffice`) |
+| **Excel to PDF** | Node.js + project code | **LibreOffice** (`soffice`) |
+| **HTML to PDF** | **Puppeteer** | Puppeteer's browser; Linux may require browser libraries |
+| **PDF to Markdown** | **pdf-parse** | **Poppler** (`pdftoppm`) + **Tesseract OCR** for scanned PDFs |
+| **Merge PDF** | **pdf-lib** | None |
+| **Split PDF** | **pdf-lib** | None |
+| **Compress PDF** | Node.js + project code | **Ghostscript** (`gs`) |
+| **JPG to PDF** | **pdf-lib** | None |
+| **PDF to JPG** | Node.js + project code | **Poppler** (`pdftoppm`) |
+| **Scan to PDF** | **pdf-lib** / tool-specific code | Depends on the scan implementation |
+| **Rotate PDF** | **pdf-lib** | None |
+| **PDF to PDF/A** | Node.js + project code | **Ghostscript** (`gs`) + Ghostscript PDF/A resources |
+| **Edit PDF** | **pdf-lib** | None |
+| **OCR PDF** | Node.js + project code | **OCRmyPDF** + **Tesseract OCR** + **Ghostscript** + **qpdf** + **Poppler** |
+| **Sign PDF** | **pdf-lib**, **react-signature-canvas** | None |
+| **Watermark PDF** | **pdf-lib** | None |
+| **Protect PDF** | Node.js + project code | **qpdf** |
+| **Unlock PDF** | Node.js + project code | **qpdf** |
+| **Page Numbers** | **pdf-lib** | None |
+| **Organize PDF** | **pdf-lib** | None |
+| **Repair PDF** | Node.js + project code | **qpdf**, with **Ghostscript** fallback |
+
+## Quick Summary
+
+For **full PDFly functionality**, install these server-side programs:
+
+1. **LibreOffice**
+2. **Ghostscript**
+3. **qpdf**
+4. **Poppler / `pdftoppm`**
+5. **Tesseract OCR**
+6. **OCRmyPDF**
+
+The project already installs the required JavaScript packages through:
+
+```bash
+npm install
+```
+
+---
+
+# 📦 JavaScript / npm Dependencies
+
+The main project dependencies are:
+
+| Package | Purpose |
+|---|---|
+| `@supabase/ssr` | Supabase authentication/session handling in Next.js |
+| `@supabase/supabase-js` | Supabase database, authentication, and storage access |
+| `jszip` | ZIP/archive-related file processing |
+| `lucide-react` | UI icons |
+| `next` | Next.js application framework |
+| `pdf-lib` | PDF creation and manipulation |
+| `pdf-parse` | Extracting text from normal/selectable-text PDFs |
+| `puppeteer` | HTML/browser rendering and HTML → PDF |
+| `react` | React UI |
+| `react-dom` | React DOM rendering |
+| `react-signature-canvas` | Signature drawing/input UI |
+| `tesseract.js` | Installed package; see OCR note below |
+
+## OCR Note
+
+The current server-side OCR implementations shown in this project use the
+**Tesseract command-line program** and **OCRmyPDF**, not the `tesseract.js`
+package.
+
+Therefore, installing `tesseract.js` through npm does **not** replace the
+server requirement for:
+
+- Tesseract OCR
+- OCRmyPDF
+- Poppler
+- Ghostscript
+- qpdf
+
+If `tesseract.js` is not imported anywhere else in the project, it can be
+removed from `package.json` to avoid an unnecessary dependency.
+
+---
+
+# 🖥️ System Dependencies
+
+PDFly calls several external programs from Node.js using `execFile`.
+
+These programs are **not installed by** `npm install`.
+
+## 1. LibreOffice
+
+Used for:
+
+- Word → PDF
+- PowerPoint → PDF
+- Excel → PDF
+
+The application searches for:
+
+```text
+Windows: soffice.exe
+Linux:   soffice
+```
+
+Check installation:
+
+```bash
+soffice --version
+```
+
+---
+
+## 2. Ghostscript
+
+Used for:
+
+- Compress PDF
+- PDF → PDF/A
+- Repair PDF fallback
+- OCR PDF processing through OCRmyPDF
+
+Linux command:
+
+```bash
+gs --version
+```
+
+Windows command used by the project:
+
+```bash
+gswin64c --version
+```
+
+---
+
+## 3. qpdf
+
+Used for:
+
+- Protect PDF
+- Unlock PDF
+- Repair PDF
+- OCRmyPDF dependency
+
+Check installation:
+
+```bash
+qpdf --version
+```
+
+---
+
+## 4. Poppler / pdftoppm
+
+Used for:
+
+- PDF → JPG
+- PDF → Markdown OCR fallback
+- OCR-related PDF page rendering
+
+Check installation:
+
+```bash
+pdftoppm -v
+```
+
+On Ubuntu, the executable is provided by:
+
+```text
+poppler-utils
+```
+
+---
+
+## 5. Tesseract OCR
+
+Used for:
+
+- OCR PDF
+- OCR fallback when PDF → Markdown receives a scanned PDF
+
+Check installation:
+
+```bash
+tesseract --version
+```
+
+The current OCR code calls the system `tesseract` executable directly.
+
+---
+
+## 6. OCRmyPDF
+
+Used for the dedicated **OCR PDF** tool.
+
+Check installation:
+
+```bash
+ocrmypdf --version
+```
+
+OCRmyPDF requires a working OCR/PDF processing environment, including
+Tesseract and other PDF utilities.
+
+---
+
+# 🐧 Ubuntu / AWS EC2 — Install All System Dependencies
+
+For a complete PDFly installation on Ubuntu:
+
+```bash
+sudo apt update
+
+sudo apt install -y \
+  libreoffice \
+  ghostscript \
+  qpdf \
+  poppler-utils \
+  tesseract-ocr \
+  ocrmypdf
+```
+
+Then verify:
+
+```bash
+soffice --version
+gs --version
+qpdf --version
+pdftoppm -v
+tesseract --version
+ocrmypdf --version
+```
+
+If all commands return version information, the main external PDF processing
+dependencies are available.
+
+---
+
+# 🪟 Windows — System Dependencies
+
+For Windows development, install the following programs and make sure their
+executables are available to the application.
+
+| Program | Executable expected by PDFly |
+|---|---|
+| LibreOffice | `soffice.exe` |
+| Ghostscript | `gswin64c.exe` |
+| qpdf | `qpdf.exe` |
+| Poppler | `pdftoppm.exe` |
+| Tesseract OCR | `tesseract.exe` |
+| OCRmyPDF | `ocrmypdf.exe` |
+
+After installation, open a new terminal and verify:
+
+```bash
+soffice --version
+gswin64c --version
+qpdf --version
+pdftoppm -v
+tesseract --version
+ocrmypdf --version
+```
+
+## Windows PATH
+
+If a command is not recognized, its installation folder must be added to the
+Windows **PATH** environment variable. Then restart the terminal or
+application.
+
+> **PDF/A note:** The current PDF/A implementation looks for Ghostscript's
+> PDF/A definition and ICC profile resources. The configured paths must match
+> the Ghostscript version installed on the machine. If Ghostscript is
+> installed in a different location/version, update the paths in the PDF/A
+> utility accordingly.
+
+---
+
+# 🧠 How OCR Works in PDFly
+
+PDFly has two OCR-related flows.
+
+## OCR PDF
+
+The dedicated OCR tool uses:
+
+```text
+Input PDF
+   ↓
+OCRmyPDF
+   ↓
+Tesseract OCR
+   ↓
+Searchable PDF
+```
+
+This is useful for scanned/image-only documents because OCR adds a searchable
+text layer.
+
+## PDF → Markdown
+
+PDFly first tries normal text extraction:
+
+```text
+PDF
+ ↓
+pdf-parse
+ ↓
+Text found?
+ ├── Yes → Markdown
+ └── No
+      ↓
+   pdftoppm
+      ↓
+   Page images
+      ↓
+   Tesseract OCR
+      ↓
+   Markdown
+```
+
+A normal text PDF does not need OCR for the first extraction path, while
+scanned PDFs require Poppler and Tesseract.
+
+---
+
+# 📁 My Files
 
 The **My Files** section allows users to manage their previous file operations.
 
@@ -108,20 +444,35 @@ experience.
 
 The following tools are currently implemented and functional.
 
+# 🛠️ Working Tools
+
+PDFly currently provides the following working tools:
+
 | Tool | Description |
 |---|---|
-| **Word to PDF** | Converts `.docx` files into PDF using LibreOffice |
-| **Merge PDF** | Combines multiple PDF files into a single PDF |
-| **Split PDF** | Extracts selected pages/ranges from a PDF |
-| **Compress PDF** | Reduces PDF file size using Ghostscript |
-| **JPG to PDF** | Converts JPG/PNG images into a PDF |
-| **PDF to JPG** | Converts PDF pages into JPG images and provides them as a ZIP file |
+| **Word to PDF** | Converts Word documents to PDF |
+| **PowerPoint to PDF** | Converts PowerPoint presentations to PDF |
+| **Excel to PDF** | Converts Excel spreadsheets to PDF |
+| **HTML to PDF** | Converts HTML content/files to PDF |
+| **PDF to Markdown** | Converts PDF content into Markdown |
+| **Merge PDF** | Combines multiple PDF files into one |
+| **Split PDF** | Extracts selected pages or page ranges |
+| **Compress PDF** | Reduces PDF file size |
+| **JPG to PDF** | Converts JPG/PNG images into PDF |
+| **PDF to JPG** | Converts PDF pages into JPG images |
+| **Scan to PDF** | Creates PDF documents from scanned content |
 | **Rotate PDF** | Rotates PDF pages by 90°, 180°, or 270° |
-| **Watermark PDF** | Adds a text watermark to PDF pages |
-| **Protect PDF** | Password-protects a PDF using qpdf |
-| **Unlock PDF** | Removes password protection when the current password is provided |
+| **PDF to PDF/A** | Converts PDF documents to PDF/A format |
+| **Edit PDF** | Performs supported PDF editing operations |
+| **OCR PDF** | Adds searchable text to scanned PDF documents |
+| **Sign PDF** | Adds signatures to PDF documents |
+| **Watermark PDF** | Adds text watermarks to PDF pages |
+| **Protect PDF** | Protects PDF files with a password |
+| **Unlock PDF** | Unlocks password-protected PDFs when the correct password is provided |
 | **Page Numbers** | Adds page numbers to PDF pages |
-| **Organize PDF** | Reorders or removes pages using a page-order list |
+| **Organize PDF** | Reorders or removes PDF pages |
+| **Repair PDF** | Repair the damaged PDF |
+
 
 ---
 
@@ -138,7 +489,6 @@ Planned tools include:
 - Crop PDF
 - PDF Forms
 - Redact PDF
-- Repair PDF
 - Compare PDF
 - AI Summarizer
 - Translate PDF
@@ -176,31 +526,6 @@ You will be redirected to the dashboard.
 ## Step 3 — Choose a Tool
 
 From the dashboard, select the PDF tool you want to use.
-
-For example:
-
-- Word to PDF
-- PowerPoint to PDF
-- Excel to PDF
-- HTML to PDF
-- PDF to Markdown
-- Merge PDF
-- Split PDF
-- Compress PDF
-- JPG to PDF
-- PDF to JPG
-- Scan to PDF
-- Rotate PDF
-- PDF to PDF/A
-- Edit PDF
-- OCR PDF
-- Sign PDF
-- Watermark PDF
-- Protect PDF
-- Unlock PDF
-- Page Numbers
-- Organize PDF
-
 You can also use the dashboard search to find a tool quickly.
 
 ---
@@ -268,35 +593,38 @@ This action requires confirmation before deletion.
 
 ---
 
-# 🧰 Tech Stack
+# 🛠️ Tech Stack
 
 | Layer | Technology |
 |---|---|
-| Framework | Next.js 15 |
-| Language | TypeScript |
-| Routing | Next.js App Router |
-| Styling | Tailwind CSS |
-| Icons | Lucide React |
-| Authentication | Supabase Auth |
-| Database | Supabase PostgreSQL |
-| Database Security | Supabase Row Level Security |
-| File Storage | Supabase Storage |
-| PDF Processing | pdf-lib |
-| Word → PDF | LibreOffice |
-| PDF Compression | Ghostscript |
-| PDF Security | qpdf |
-| PDF → JPG | poppler-utils |
-| ZIP Creation | JSZip |
-| Process Manager | PM2 |
-| Reverse Proxy | Nginx |
-| SSL | Let's Encrypt + Certbot |
-| Hosting | AWS EC2 |
+| **Framework** | Next.js 15 |
+| **Language** | TypeScript |
+| **Routing** | Next.js App Router |
+| **Styling** | Tailwind CSS |
+| **Icons** | Lucide React |
+| **Authentication** | Supabase Auth |
+| **Database** | Supabase PostgreSQL |
+| **Database Security** | Supabase Row Level Security |
+| **File Storage** | Supabase Storage |
+| **PDF Creation / Manipulation** | pdf-lib |
+| **PDF Text Parsing** | pdf-parse |
+| **HTML → PDF** | Puppeteer |
+| **OCR PDF** | OCRmyPDF + Tesseract |
+| **OCR Fallback** | Tesseract + Poppler |
+| **Digital Signature Input** | react-signature-canvas |
+| **ZIP / File Utility** | JSZip |
+| **Office → PDF** | LibreOffice |
+| **PDF Compression** | Ghostscript |
+| **PDF Encryption / Repair** | qpdf |
+| **PDF Rendering** | Poppler |
+| **Process Manager** | PM2 |
+| **Reverse Proxy** | Nginx |
+| **SSL** | Let's Encrypt + Certbot |
+| **Hosting** | AWS EC2 |
 
 ---
 
 # 🏗️ Project Architecture
-
-PDFly uses a Next.js App Router architecture.
 
 ```text
 User
@@ -311,10 +639,14 @@ Next.js Frontend
  ├── PDF Tools
  │      │
  │      ├── pdf-lib
+ │      ├── pdf-parse
+ │      ├── Puppeteer
  │      ├── LibreOffice
  │      ├── Ghostscript
  │      ├── qpdf
- │      └── poppler-utils
+ │      ├── Poppler
+ │      ├── Tesseract OCR
+ │      └── OCRmyPDF
  │
  ├── My Files
  │      │
@@ -324,14 +656,14 @@ Next.js Frontend
  └── API Route Handlers
         │
         ▼
-     Server-side Processing
-
- ``` 
+ Server-side Processing
+```
 
 ---
 
 # 📂 Project Structure
-```
+
+```text
 pdfly/
 ├── app/
 │   ├── api/
@@ -363,7 +695,6 @@ pdfly/
 │   ├── signup/
 │   ├── reset-password/
 │   ├── update-password/
-│   │
 │   └── page.tsx
 │
 ├── components/
@@ -380,7 +711,6 @@ pdfly/
 │   ├── system-tools.ts
 │   ├── tools-config.ts
 │   ├── utils.ts
-│   │
 │   └── supabase/
 │       ├── client.ts
 │       ├── server.ts
@@ -497,7 +827,7 @@ It must never be exposed in client-side code.
 
 ## Environment Variables
 
-Sensitive configuration is stored in `.env.local.`
+Sensitive configuration is stored in `.env.local`.
 
 `.env.local` must never be committed to GitHub.
 
@@ -512,19 +842,23 @@ For local development you should have:
 - Git
 - Supabase project
 
-For all PDF tools to work, install:
+For full PDF processing:
 
 - LibreOffice
 - Ghostscript
 - qpdf
-- poppler-utils
+- Poppler / poppler-utils
+- Tesseract OCR
+- OCRmyPDF
+
+For HTML → PDF:
+
+- Puppeteer
+- Its browser runtime and required Linux libraries if needed by the host
 
 ---
 
-## 6. Local Installation
-
-Requirements: Node.js 18.18+ and, for full tool functionality, LibreOffice,
-Ghostscript, qpdf, and poppler-utils installed locally (see section 9).
+# 🚀 Local Installation
 
 ```bash
 git clone https://github.com/farazii1159/Pdfly-pdf-toolkit.git
@@ -532,7 +866,32 @@ git clone https://github.com/farazii1159/Pdfly-pdf-toolkit.git
 cd Pdfly-pdf-toolkit
 
 npm install
+```
+## Install system dependencies (Ubuntu/Debian)
 
+```bash
+sudo apt update
+
+sudo apt install -y \
+  libreoffice \
+  ghostscript \
+  qpdf \
+  poppler-utils \
+  tesseract-ocr \
+  ocrmypdf
+ ```
+
+## Verify
+
+```bash
+soffice --version
+gs --version
+qpdf --version
+pdftoppm -v
+tesseract --version
+ocrmypdf --version
+```
+```bash
 cp .env.example .env.local
 # fill in .env.local with your Supabase values (see section 8)
 ```
@@ -604,7 +963,9 @@ Tools implemented purely in JavaScript (`pdf-lib`, `jszip`) — Merge, Split,
 Rotate, Watermark, Page Numbers, Organize, JPG to PDF — need **no** extra
 system binaries.
 
-## 10. Running Locally
+---
+
+# 🚀 Running Locally
 
 ```bash
 npm run dev
@@ -614,17 +975,28 @@ Visit `http://localhost:3000`. Sign up for an account, confirm your email
 (check the Supabase Auth email logs if you haven't configured SMTP), log in,
 and try a tool from the dashboard.
 
-## 11. Building for Production
+---
+
+# 🏗️ Building for Production
 
 ```bash
 npm run build
 npm start
 ```
 
-## 12. PM2 Deployment
+---
+
+# 🔄 PM2 Deployment
+
+Install PM2:
 
 ```bash
 sudo npm install -g pm2
+```
+
+Start:
+
+```bash
 pm2 start ecosystem.config.js
 pm2 status
 pm2 logs pdfly
@@ -642,7 +1014,9 @@ npm run build
 pm2 restart pdfly
 ```
 
-## 13. Nginx Configuration
+---
+
+# 🌐 Nginx Configuration
 
 Create `/etc/nginx/sites-available/pdfly`:
 
@@ -671,6 +1045,8 @@ server {
 }
 ```
 
+Enable it:
+
 ```bash
 sudo ln -s /etc/nginx/sites-available/pdfly /etc/nginx/sites-enabled/pdfly
 sudo nginx -t
@@ -679,17 +1055,27 @@ sudo systemctl reload nginx
 
 Port 3000 stays internal — do not open it in your EC2 security group.
 
-## 14. SSL with Certbot
+---
+
+# 🔒 SSL with Certbot
 
 ```bash
 sudo apt install -y certbot python3-certbot-nginx
+
 sudo certbot --nginx -d your-domain.com -d www.your-domain.com
+```
+
+Test Renewal:
+
+```bash
 sudo certbot renew --dry-run
 ```
 
 Your site is now available at `https://your-domain.com`.
 
-## 15. AWS EC2 Deployment (full walkthrough)
+---
+
+# ☁️ AWS EC2 Deployment
 
 1. **Launch an EC2 instance** — Ubuntu Server 24.04 LTS, `t3.small` or
    larger recommended (LibreOffice/Ghostscript need a bit more headroom than
@@ -718,7 +1104,23 @@ Your site is now available at `https://your-domain.com`.
 
 6. **Install the PDF system tools** (see section 9)
    ```bash
-   sudo apt install -y libreoffice ghostscript qpdf poppler-utils
+   sudo apt install -y \
+  libreoffice \
+  ghostscript \
+  qpdf \
+  poppler-utils \
+  tesseract-ocr \
+  ocrmypdf
+```
+Verify:
+
+```bash
+  soffice --version
+gs --version
+qpdf --version
+pdftoppm -v
+tesseract --version
+ocrmypdf --version
    ```
 
 7. **Install PM2**
@@ -728,8 +1130,8 @@ Your site is now available at `https://your-domain.com`.
 
 8. **Clone your GitHub repository**
    ```bash
-   git clone https://github.com/your-username/pdfly.git
-   cd pdfly
+   git clone https://github.com/farazii1159/Pdfly-pdf-toolkit.git
+   cd Pdfly-pdf-toolkit
    ```
 
 9. **Configure environment variables**
@@ -759,17 +1161,19 @@ Your site is now available at `https://your-domain.com`.
     pm2 save
     ```
 
-14. **Configure Nginx** — see section 13.
+14. **Configure Nginx** — see Nginx section.
 
 15. **Confirm EC2 security group** allows ports 22, 80, 443 only.
 
 16. **Point your domain's DNS to the EC2 public IP** — see section 16.
 
-17. **Install Certbot and enable HTTPS** — see section 14.
+17. **Install Certbot and enable HTTPS** — see SSL with Certbot section.
 
 18. **Verify** — visit `https://your-domain.com`, sign up, and run a tool.
 
-## 16. DNS / Custom Domain
+---
+
+# 🌐 DNS / Custom Domain
 
 | Type | Name  | Value               |
 | ---- | ----- | -------------------- |
@@ -779,7 +1183,104 @@ Your site is now available at `https://your-domain.com`.
 For a subdomain instead (e.g. `app.yourdomain.com`), add an `A` record for
 `app` pointing to the same IP. Exact steps depend on your DNS provider.
 
-## 17. GitHub Deployment
+---
+
+# 🩺 Health Check
+
+PDFly includes the following health check endpoint:
+
+```text
+/api/health
+```
+
+Use this endpoint to confirm that the application is running and to checkavailable server-side dependencies when supported by the current healthimplementation.
+
+You can also manually check all required binaries:
+
+```bash
+soffice --version
+gs --version
+qpdf --version
+pdftoppm -v
+tesseract --version
+ocrmypdf --version
+```
+---
+
+# 🛠️ Troubleshooting
+
+| Problem | What to Check |
+| --- | --- |
+| `soffice` not found | Install LibreOffice and verify `soffice --version` |
+| `gs` / Ghostscript not found | Install Ghostscript and verify `gs --version` |
+| `qpdf` not found | Install qpdf and verify `qpdf --version` |
+| `pdftoppm` not found | Install `poppler-utils` |
+| `tesseract` not found | Install `tesseract-ocr` |
+| `ocrmypdf` not found | Install OCRmyPDF |
+| OCR fails | Check OCRmyPDF, Tesseract, language data, Poppler, and Ghostscript |
+| PDF → Markdown works on normal PDFs but not scans | Install and check `pdftoppm` and Tesseract |
+| PDF/A fails | Check Ghostscript version and configured PDF/A definition/ICC paths |
+| HTML → PDF fails on Linux | Check Puppeteer browser installation and required Linux browser libraries |
+| Redirected to `/login` | Check Supabase URL/key and root `middleware.ts` |
+| Signup works but email does not arrive | Check Supabase Authentication logs and URL/SMTP settings |
+| File history is empty | Check the `file_operations` table and `migration_v2.sql` |
+| Download/delete permissions fail | Check Supabase Storage policies and user-scoped paths |
+| 502 Bad Gateway | Check `pm2 status` and `pm2 logs pdfly` |
+| HTTPS fails | Check DNS propagation and Certbot configuration |
+| Changes do not appear after `git pull` | Run `npm install`, `npm run build`, then `pm2 restart pdfly` |
+
+---
+
+# 📌 Important Deployment Notes
+
+## 1. npm Packages vs System Programs
+
+This distinction is important:
+
+```text
+npm install
+│
+├── Installs JavaScript packages
+│
+└── DOES NOT install:
+    ├── LibreOffice
+    ├── Ghostscript
+    ├── qpdf
+    ├── Poppler
+    ├── Tesseract
+    └── OCRmyPDF
+   ``` 
+---
+
+## 2. Local Machine and Production Server
+
+If you develop on Windows and deploy on Ubuntu, install the required dependencies in both environments.
+
+The application detects the Windows/Linux executable names for most of these tools, but the external programs still need to be installed.
+
+## 3. File Size and Server Resources
+
+PDF conversion, OCR, LibreOffice, Puppeteer, and Ghostscript can use significant CPU/RAM for large files or multiple simultaneous users.
+
+Keep upload limits configured and avoid exposing the application to unlimited large uploads.
+
+## 4. Security
+
+Never commit:
+
+```bash
+.env.local
+```
+Never expose:
+
+```bash
+SUPABASE_SERVICE_ROLE_KEY
+```
+Keep Supabase Storage buckets private and use authenticated access or signed URLs.
+
+ --- 
+
+# 🚀 GitHub Deployment
 
 ```bash
 git add .
@@ -793,23 +1294,8 @@ one, use `git init`, `git remote add origin ...`, `git push -u origin main`.)
 `.env.local`, `node_modules`, and build artifacts are already excluded via
 `.gitignore`.
 
-## 18. Troubleshooting
+---  
 
-| Problem | Fix |
-| --- | --- |
-| Redirected to `/login` even though I'm logged in | Confirm `NEXT_PUBLIC_SUPABASE_URL`/`ANON_KEY` are correct and `middleware.ts` is present at the project root (not inside `app/`). |
-| Signup succeeds but no confirmation email arrives | Check Supabase → Authentication → Logs, and confirm SMTP/Site URL settings under Authentication → URL Configuration. |
-| A tool fails with "`X` is not installed on the server" | Install the missing binary from section 9 (`libreoffice`, `ghostscript`, `qpdf`, or `poppler-utils`). |
-| "You must be logged in to use this tool." on `/api/tools` | The session cookie didn't reach the request — confirm you're not calling the API from a different origin, and that middleware is active. |
-| File history is empty after a successful conversion | Check that `supabase/migration_v2.sql` ran successfully (creates `file_operations` + RLS policies). |
-| Download/delete in "My Files" fails with a permissions error | Re-run `migration_v2.sql` — it creates the storage RLS policies that scope access to `<user_id>/...` paths. |
-| 502 Bad Gateway from Nginx | The app isn't running — check `pm2 status` and `pm2 logs pdfly`. |
-| HTTPS not working | Confirm DNS has propagated (`dig your-domain.com`) before running Certbot. |
-| Changes not showing after `git pull` | Re-run `npm run build` and `pm2 restart pdfly`. |
-| Legacy `/api/convert` behaves differently than the new Word to PDF tool | Both use the same `lib/convert.ts` LibreOffice utility; the legacy route just doesn't require login or write to `file_operations` — this is expected and intentional for backward compatibility. |
-
----
-
-## License
+# License
 
 This project was built as a student portfolio / internship assignment.
