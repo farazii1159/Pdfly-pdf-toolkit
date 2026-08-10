@@ -1083,6 +1083,11 @@ sudo apt install -y certbot python3-certbot-nginx
 
 sudo certbot --nginx -d your-domain.com -d .your-sub-domain.com
 ```
+Verify:
+
+```bash
+sudo certbot certificates
+```
 
 Test Renewal:
 
