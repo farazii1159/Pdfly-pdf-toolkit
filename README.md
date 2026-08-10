@@ -1071,7 +1071,7 @@ Your site is now available at `https://your-domain.com`.
    sudo apt install -y git
    ```
 
-6. **Install the PDF system tools** (see section 9)
+6. **Install the PDF system tools Verify** (see section 9)
    ```bash
    sudo apt install -y \
     libreoffice \
@@ -1081,11 +1081,8 @@ Your site is now available at `https://your-domain.com`.
     tesseract-ocr \
     ocrmypdf
 ```
----
 
-**Verify**  
-
-   ```bash
+   ```
    soffice --version
    gs --version
    qpdf --version
@@ -1093,7 +1090,6 @@ Your site is now available at `https://your-domain.com`.
    tesseract --version
    ocrmypdf --version
 ```
----
 
 7. **Install PM2**
    ```bash
