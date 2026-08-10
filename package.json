@@ -1,0 +1,40 @@
+{
+  "name": "pdfly",
+  "version": "2.0.0",
+  "private": true,
+  "description": "PDFly — An all-in-one PDF toolkit (convert, merge, compress, edit) built with Next.js and Supabase.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.5.1",
+    "@supabase/supabase-js": "^2.45.4",
+    "jszip": "^3.10.1",
+    "lucide-react": "^0.454.0",
+    "next": "^15.0.3",
+    "pdf-lib": "^1.17.1",
+    "pdf-parse": "^2.4.5",
+    "puppeteer": "^25.5.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-signature-canvas": "^1.1.0-alpha.2",
+    "tesseract.js": "^7.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "autoprefixer": "^10.4.19",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "^15.0.3",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.4",
+    "typescript": "^5.5.2"
+  },
+  "engines": {
+    "node": ">=18.18.0"
+  }
+}
