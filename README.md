@@ -1076,7 +1076,7 @@ sudo systemctl reload nginx
 sudo systemctl status nginx
 ```
 
-## Test Tool:
+## Test Tool in Browser:
 
 ```bash
 http://YOUR SUB-DOMAIN.XYZ
@@ -1093,13 +1093,14 @@ sudo apt install -y certbot python3-certbot-nginx
 
 sudo certbot --nginx -d your-domain.com -d .your-sub-domain.com
 ```
-Verify:
+
+## Verify:
 
 ```bash
 sudo certbot certificates
 ```
 
-Test Renewal:
+## Test Renewal:
 
 ```bash
 sudo certbot renew --dry-run
@@ -1182,7 +1183,7 @@ Expected:
     /home/ubuntu/Pdfly-pdf-toolkit
    ```
 
-and
+  and
 
    ```bash
      git status
@@ -1201,6 +1202,7 @@ and
    SUPABASE_SERVICE_ROLE_KEY=...
    MAX_FILE_SIZE_MB=10
 ```
+
 11. **Build**
     ```bash
     npm run build
@@ -1230,9 +1232,9 @@ and
 
 16. **Confirm EC2 security group** allows ports 22, 80, 443 only.
 
-17. **Point your domain's DNS to the EC2 public IP** — see section 16.
+17. **Point your domain's DNS to the EC2 public IP** — see Nginx DNS section in Above .
 
-18. **Install Certbot and enable HTTPS** — see SSL with Certbot section.
+18. **Install Certbot and enable HTTPS** — see SSL with Certbot section in Above.
 
 19. **Verify** — visit `https://your-domain.com`, sign up, and run a tool.
 
