@@ -54,6 +54,7 @@ PDFly currently includes multiple working PDF tools:
 - Rotate PDF
 - PDF to PDF/A
 - Edit PDF
+- OCR PDF
 - Sign PDF
 - Watermark PDF
 - Protect PDF
@@ -137,7 +138,6 @@ Planned tools include:
 - Crop PDF
 - PDF Forms
 - Redact PDF
-- OCR PDF
 - Repair PDF
 - Compare PDF
 - AI Summarizer
@@ -180,12 +180,21 @@ From the dashboard, select the PDF tool you want to use.
 For example:
 
 - Word to PDF
+- PowerPoint to PDF
+- Excel to PDF
+- HTML to PDF
+- PDF to Markdown
 - Merge PDF
 - Split PDF
 - Compress PDF
 - JPG to PDF
 - PDF to JPG
+- Scan to PDF
 - Rotate PDF
+- PDF to PDF/A
+- Edit PDF
+- OCR PDF
+- Sign PDF
 - Watermark PDF
 - Protect PDF
 - Unlock PDF
