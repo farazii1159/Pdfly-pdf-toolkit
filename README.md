@@ -1123,7 +1123,7 @@ and
      git status
 ```
 
-11. **Configure environment variables**
+10. **Configure environment variables**
    ```bash
    cp .env.example .env.local
 
@@ -1136,36 +1136,36 @@ and
    SUPABASE_SERVICE_ROLE_KEY=...
    MAX_FILE_SIZE_MB=10
 ```
-12. **Build**
+11. **Build**
     ```bash
     npm run build
     ```
 
-13. **Install PM2**
+12. **Install PM2**
    ```bash
    sudo npm install -g pm2
    ```    
 
-14. **Start with PM2**
+13. **Start with PM2**
     ```bash
     pm2 start ecosystem.config.js
     ```
 
-15. **Configure PM2 startup**
+14. **Configure PM2 startup**
     ```bash
     pm2 startup
     pm2 save
     ```
 
-16. **Configure Nginx** — see Nginx section.
+15. **Configure Nginx** — see Nginx section.
 
-17. **Confirm EC2 security group** allows ports 22, 80, 443 only.
+16. **Confirm EC2 security group** allows ports 22, 80, 443 only.
 
-18. **Point your domain's DNS to the EC2 public IP** — see section 16.
+17. **Point your domain's DNS to the EC2 public IP** — see section 16.
 
-19. **Install Certbot and enable HTTPS** — see SSL with Certbot section.
+18. **Install Certbot and enable HTTPS** — see SSL with Certbot section.
 
-20. **Verify** — visit `https://your-domain.com`, sign up, and run a tool.
+19. **Verify** — visit `https://your-domain.com`, sign up, and run a tool.
 
 ---
 
