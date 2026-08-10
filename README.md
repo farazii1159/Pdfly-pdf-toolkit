@@ -389,9 +389,9 @@ pdfly/
 └── README.md
 
 
-
+```
 ---
-
+```
 # 🔐 Authentication
 
 Implemented with Supabase Auth via `@supabase/ssr`:
