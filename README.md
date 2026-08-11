@@ -1137,7 +1137,7 @@ sudo systemctl status nginx
 ## Test Tool in Browser:
 
 ```bash
-http://YOUR SUB-DOMAIN.XYZ
+http://app.your-domain.xyz
 ```
 
 ---
