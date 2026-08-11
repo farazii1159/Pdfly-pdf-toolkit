@@ -992,10 +992,16 @@ Never commit `.env.local` — it's already excluded in `.gitignore`.
 npm run dev
 ```
 
-Visit `http://localhost:3000`. Sign up for an account, confirm your email
-(check the Supabase Auth email logs if you haven't configured SMTP), log in,
-and try a tool from the dashboard.
+Visit 
+`http://localhost:3000`
 
+Sign up for an account, confirm your email (check the Supabase Auth email logs if you haven't configured SMTP), log in, and try a tool from the dashboard.
+
+To verify Sentry during development, visit:
+
+```
+http://localhost:3000/sentry-example-page
+```
 ---
 
 # 🏗️ Building for Production
