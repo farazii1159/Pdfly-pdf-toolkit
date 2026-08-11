@@ -715,7 +715,9 @@ pdfly/
 │   │   │   └── route.ts
 │   │   ├── tools/
 │   │   │   └── route.ts
-│   │   └── health/
+│   │   ├── health/
+│   │   │   └── route.ts
+│   │   └── sentry-example-api/
 │   │       └── route.ts
 │   │
 │   ├── auth/
@@ -739,6 +741,8 @@ pdfly/
 │   ├── signup/
 │   ├── reset-password/
 │   ├── update-password/
+│   ├── sentry-example-page/
+│   ├── global-error.tsx
 │   └── page.tsx
 │
 ├── components/
@@ -764,6 +768,10 @@ pdfly/
 │   ├── schema.sql
 │   └── migration_v2.sql
 │
+├── instrumentation-client.ts
+├── instrumentation.ts
+├── sentry.edge.config.ts
+├── sentry.server.config.ts
 ├── ecosystem.config.js
 ├── middleware.ts
 ├── .env.example
