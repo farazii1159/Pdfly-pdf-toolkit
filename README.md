@@ -1396,6 +1396,8 @@ Never commit:
 
 ```bash
 .env.local
+
+.env.sentry-build-plugin
 ```
 Never expose:
 
@@ -1417,11 +1419,10 @@ git push
 (If this is a brand-new repo instead of pushing to the existing Word2PDF
 one, use `git init`, `git remote add origin ...`, `git push -u origin main`.)
 
-`.env.local`, `node_modules`, and build artifacts are already excluded via
-`.gitignore`.
+`.env.local`, `.env.sentry-build-plugin`, `node_modules`, and build artifacts are already excluded via `.gitignore`.
 
 ---  
 
 # License
 
-This project was built as a student portfolio / internship assignment.
+This project was built By Me as a student portfolio / internship assignment.
