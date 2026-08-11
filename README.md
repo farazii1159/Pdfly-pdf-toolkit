@@ -698,8 +698,9 @@ Next.js Frontend
  │
  └── API Route Handlers
         │
-        ▼
- Server-side Processing
+        ├── Server-side Processing
+        │
+        └── Sentry Monitoring
 ```
 
 ---
