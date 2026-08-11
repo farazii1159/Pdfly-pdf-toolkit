@@ -135,6 +135,7 @@ The main project dependencies are:
 | `react-dom` | React DOM rendering |
 | `react-signature-canvas` | Signature drawing/input UI |
 | `tesseract.js` | Installed package; see OCR note below |
+| `@sentry/nextjs` | Error monitoring, tracing, replay, and application logs |
 
 ## OCR Note
 
