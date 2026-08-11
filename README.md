@@ -490,10 +490,6 @@ experience.
 
 # 🛠️ Working Tools
 
-The following tools are currently implemented and functional.
-
-# 🛠️ Working Tools
-
 PDFly currently provides the following working tools:
 
 | Tool | Description |
@@ -520,7 +516,6 @@ PDFly currently provides the following working tools:
 | **Page Numbers** | Adds page numbers to PDF pages |
 | **Organize PDF** | Reorders or removes PDF pages |
 | **Repair PDF** | Repair the damaged PDF |
-
 
 ---
 
