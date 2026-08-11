@@ -1353,6 +1353,8 @@ ocrmypdf --version
 | 502 Bad Gateway | Check `pm2 status` and `pm2 logs pdfly` |
 | HTTPS fails | Check DNS propagation and Certbot configuration |
 | Changes do not appear after `git pull` | Run `npm install`, `npm run build`, then `pm2 restart pdfly` |
+| Sentry errors are not appearing |
+Check Sentry configuration and application/server logs |
 
 ---
 
