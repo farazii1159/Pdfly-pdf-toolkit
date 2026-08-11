@@ -157,6 +157,53 @@ removed from `package.json` to avoid an unnecessary dependency.
 
 ---
 
+## 📊 Monitoring & Error Tracking
+
+PDFly uses Sentry for application monitoring and error tracking.
+
+Sentry is configured with the Next.js application to help monitor:
+
+- Runtime errors
+- Application exceptions
+- Performance tracing
+- Session Replay
+- Application logs
+
+The Sentry Next.js SDK was configured using the Sentry setup wizard.
+
+Sentry configuration files include:
+
+```bash
+    sentry.server.config.ts
+    sentry.edge.config.ts
+    instrumentation.ts
+    instrumentation-client.ts
+    app/global-error.tsx
+```
+A test page is also available during development:
+
+```bash
+/sentry-example-page
+```
+
+The Sentry example page can be used to verify that errors are successfully
+reported to the Sentry project.
+
+## 🔐 Sentry Security
+
+Sentry authentication tokens and other secrets must never be committed to
+GitHub.
+
+The local Sentry build configuration is excluded through `.gitignore`:
+
+```
+.env.sentry-build-plugin
+```
+
+If Sentry source-map uploads are configured in a CI/CD environment, the
+required Sentry authentication token should be stored as a secure CI/CD
+environment variable rather than inside the repository.
+
 # 🖥️ System Dependencies
 
 PDFly calls several external programs from Node.js using `execFile`.
