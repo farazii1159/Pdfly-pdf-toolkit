@@ -1070,7 +1070,7 @@ server {
     #server_name works only if you have domain or sub-domain
     #otherwise keep server_name EMPTY.
 
-    server_name app.farazshabbir.xyz;  
+    server_name [ENTER DOMAIN HERE IF AVAILABLE];  
 
     client_max_body_size 15M;
 
