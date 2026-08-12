@@ -8,6 +8,8 @@ import os from 'os';
 import path from 'path';
 import process from 'process';
 
+import { encryptPDF } from '@pdfsmaller/pdf-encrypt';
+
 const execFileAsync = promisify(execFile);
 
 export class SystemToolError extends Error {}

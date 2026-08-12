@@ -10,6 +10,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@pdfsmaller/pdf-encrypt": "^1.2.0",
     "@sentry/nextjs": "^10.70.0",
     "@supabase/ssr": "^0.5.1",
     "@supabase/supabase-js": "^2.45.4",
