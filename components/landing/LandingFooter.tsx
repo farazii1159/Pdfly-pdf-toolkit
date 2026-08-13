@@ -59,7 +59,7 @@ export default function LandingFooter() {
             </a>
 
             <a
-              href="https://github.com"
+              href="https://github.com/farazii1159/Pdfly-pdf-toolkit.git"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-slate-900"
