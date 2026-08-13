@@ -1,0 +1,70 @@
+FROM node:24-bookworm-slim
+
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV DEBIAN_FRONTEND=noninteractive
+
+WORKDIR /app
+
+# Install native PDF/document processing tools.
+#
+# qpdf          -> Protect / Unlock / Repair
+# ghostscript   -> Compress / Repair fallback / PDF-A
+# poppler-utils -> PDF -> JPG and PDF utilities
+# libreoffice   -> Word/PPT/Excel -> PDF
+# tesseract     -> OCR engine
+# ocrmypdf      -> OCR PDF processing
+# unzip         -> Required by Puppeteer to extract Chrome
+
+# Fonts improve Office-document and PDF rendering.
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    qpdf \
+    ghostscript \
+    poppler-utils \
+    libreoffice \
+    libreoffice-writer \
+    libreoffice-calc \
+    libreoffice-impress \
+    tesseract-ocr \
+    tesseract-ocr-eng \
+    ocrmypdf \
+    unzip \
+    fonts-dejavu \
+    fonts-liberation \
+    fonts-noto-core \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy dependency manifests first for better Docker layer caching.
+COPY package.json package-lock.json* ./
+
+# Install ALL dependencies, including devDependencies,
+# because Next.js build requires Tailwind CSS.
+RUN npm ci
+
+# Production mode AFTER build dependencies are installed.
+ENV NODE_ENV=production
+
+# Copy application source.
+COPY . .
+
+ARG NEXT_PUBLIC_SUPABASE_URL
+ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
+ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+# DEBUG: verify required files exist inside Docker
+RUN echo "=== CHECK LIB ===" && \
+    find /app/lib -maxdepth 2 -type f -print && \
+    echo "=== CHECK APP API ===" && \
+    ls -la /app/app/api/convert && \
+    ls -la /app/app/api/tools
+
+# Build Next.js.
+RUN npm run build
+
+# Vercel provides PORT at runtime.
+EXPOSE 3000
+
+CMD ["sh", "-c", "npm run start -- --hostname 0.0.0.0 --port ${PORT:-3000}"]

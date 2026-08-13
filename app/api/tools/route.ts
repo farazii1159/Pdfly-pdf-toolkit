@@ -57,7 +57,7 @@ import {
 } from '@/lib/ocr-tools';
 
 export const runtime = 'nodejs';
-export const maxDuration = 120;
+export const maxDuration = 300;
 
 type ProcessedResult = {
   buffer: Buffer;

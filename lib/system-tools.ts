@@ -1,4 +1,3 @@
-import { execFileSync } from 'child_process';
 import { execFile } from 'child_process';
 import { promisify } from 'util';
 import { randomUUID } from 'crypto';
@@ -7,29 +6,49 @@ import os from 'os';
 import path from 'path';
 import process from 'process';
 
-import { encryptPDF } from '@pdfsmaller/pdf-encrypt';
-
 const execFileAsync = promisify(execFile);
 
-export class SystemToolError extends Error {}
+export class SystemToolError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'SystemToolError';
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Temporary directory                                                       */
+/* -------------------------------------------------------------------------- */
 
 async function withTempDir<T>(
   fn: (dir: string) => Promise<T>
 ): Promise<T> {
-  const dir = path.join(os.tmpdir(), `pdfly-${randomUUID()}`);
+  const dir = path.join(
+    os.tmpdir(),
+    `pdfly-${randomUUID()}`
+  );
 
-  await fs.mkdir(dir, { recursive: true });
+  await fs.mkdir(dir, {
+    recursive: true,
+  });
 
   try {
     return await fn(dir);
   } finally {
-    await fs
-      .rm(dir, {
-        recursive: true,
-        force: true,
-      })
-      .catch(() => {});
+    await fs.rm(dir, {
+      recursive: true,
+      force: true,
+    }).catch(() => {});
   }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Helpers                                                                    */
+/* -------------------------------------------------------------------------- */
+
+function isErrnoException(
+  err: unknown
+): err is NodeJS.ErrnoException {
+  return err instanceof Error && 'code' in err;
 }
 
 function friendlyMissingBinary(
@@ -37,25 +56,97 @@ function friendlyMissingBinary(
   err: unknown
 ): never {
   if (
-    err instanceof Error &&
-    'code' in err &&
-    (err as NodeJS.ErrnoException).code === 'ENOENT'
+    isErrnoException(err) &&
+    err.code === 'ENOENT'
   ) {
     throw new SystemToolError(
-      `${binary} is not installed on the server. See the README for setup instructions.`
+      `${binary} is not installed on the server.`
     );
   }
 
-  throw err instanceof Error
-    ? new SystemToolError(err.message)
-    : new SystemToolError('Unknown error.');
+  if (err instanceof Error) {
+    throw new SystemToolError(err.message);
+  }
+
+  throw new SystemToolError(
+    'Unknown system tool error.'
+  );
 }
 
+async function commandExists(
+  command: string
+): Promise<boolean> {
+  try {
+    await execFileAsync(
+      command,
+      ['--version'],
+      {
+        timeout: 10_000,
+      }
+    );
+
+    return true;
+  } catch (err) {
+    return !(
+      isErrnoException(err) &&
+      err.code === 'ENOENT'
+    );
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* qpdf                                                                       */
+/* -------------------------------------------------------------------------- */
+
+async function requireQpdf(): Promise<void> {
+  try {
+    await execFileAsync(
+      'qpdf',
+      ['--version'],
+      {
+        timeout: 10_000,
+      }
+    );
+  } catch (err) {
+    friendlyMissingBinary('qpdf', err);
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Ghostscript                                                               */
+/* -------------------------------------------------------------------------- */
+
+function getGhostscriptBinary(): string {
+  return process.platform === 'win32'
+    ? 'gswin64c'
+    : 'gs';
+}
+
+async function requireGhostscript(): Promise<void> {
+  const binary = getGhostscriptBinary();
+
+  try {
+    await execFileAsync(
+      binary,
+      ['--version'],
+      {
+        timeout: 10_000,
+      }
+    );
+  } catch (err) {
+    friendlyMissingBinary(
+      'ghostscript (gs)',
+      err
+    );
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Protect PDF                                                                */
+/* -------------------------------------------------------------------------- */
+
 /**
- * Protect/encrypt a PDF with a user-facing password.
- *
- * Uses @pdfsmaller/pdf-encrypt instead of qpdf so this
- * works on serverless platforms such as Vercel.
+ * Encrypt a PDF with a user-facing password using qpdf.
  */
 export async function protectPdf(
   buffer: Buffer,
@@ -67,42 +158,68 @@ export async function protectPdf(
     );
   }
 
-   try {
-    const encrypted = await encryptPDF(
-      buffer,
-      password
+  await requireQpdf();
+
+  return withTempDir(async (dir) => {
+    const input = path.join(
+      dir,
+      'input.pdf'
     );
 
-    if (!encrypted || encrypted.length === 0) {
+    const output = path.join(
+      dir,
+      'protected.pdf'
+    );
+
+    await fs.writeFile(
+      input,
+      buffer
+    );
+
+    try {
+      await execFileAsync(
+        'qpdf',
+        [
+          '--encrypt',
+          password,
+          password,
+          '256',
+          '--',
+          input,
+          output,
+        ],
+        {
+          timeout: 60_000,
+          maxBuffer: 10 * 1024 * 1024,
+        }
+      );
+    } catch (err) {
+      friendlyMissingBinary(
+        'qpdf',
+        err
+      );
+    }
+
+    const result = await fs.readFile(
+      output
+    );
+
+    if (!result.length) {
       throw new SystemToolError(
         'PDF protection produced an empty file.'
       );
     }
 
-    return Buffer.isBuffer(encrypted)
-      ? encrypted
-      : Buffer.from(encrypted);
-  } catch (error) {
-    console.error('PDF protection failed:', error);
-
-    if (error instanceof SystemToolError) {
-      throw error;
-    }
-
-    throw new SystemToolError(
-      error instanceof Error
-        ? error.message
-        : 'Could not protect this PDF.'
-    );
-  }
+    return result;
+  });
 }
 
+/* -------------------------------------------------------------------------- */
+/* Unlock PDF                                                                 */
+/* -------------------------------------------------------------------------- */
+
 /**
- * Decrypt a password-protected PDF using qpdf,
- * given the current password.
- *
- * NOTE:
- * This still requires qpdf on the server.
+ * Decrypt a password-protected PDF using qpdf.
  */
 export async function unlockPdf(
   buffer: Buffer,
@@ -114,11 +231,23 @@ export async function unlockPdf(
     );
   }
 
-  return withTempDir(async (dir) => {
-    const input = path.join(dir, 'input.pdf');
-    const output = path.join(dir, 'output.pdf');
+  await requireQpdf();
 
-    await fs.writeFile(input, buffer);
+  return withTempDir(async (dir) => {
+    const input = path.join(
+      dir,
+      'input.pdf'
+    );
+
+    const output = path.join(
+      dir,
+      'unlocked.pdf'
+    );
+
+    await fs.writeFile(
+      input,
+      buffer
+    );
 
     try {
       await execFileAsync(
@@ -131,33 +260,52 @@ export async function unlockPdf(
           output,
         ],
         {
-          timeout: 30_000,
+          timeout: 60_000,
+          maxBuffer: 10 * 1024 * 1024,
         }
       );
     } catch (err) {
       if (
-        err instanceof Error &&
-        'code' in err &&
-        (err as NodeJS.ErrnoException).code !== 'ENOENT'
+        isErrnoException(err) &&
+        err.code === 'ENOENT'
       ) {
-        throw new SystemToolError(
-          'Incorrect password, or the file is not password protected.'
+        friendlyMissingBinary(
+          'qpdf',
+          err
         );
       }
 
-      friendlyMissingBinary('qpdf', err);
+      throw new SystemToolError(
+        'Incorrect password, or the file is not password protected.'
+      );
     }
 
-    return fs.readFile(output);
+    const result = await fs.readFile(
+      output
+    );
+
+    if (!result.length) {
+      throw new SystemToolError(
+        'Unlocking the PDF produced an empty file.'
+      );
+    }
+
+    return result;
   });
 }
 
-/** Compress a PDF using Ghostscript. */
+/* -------------------------------------------------------------------------- */
+/* Compress PDF                                                               */
+/* -------------------------------------------------------------------------- */
+
 export async function compressPdf(
   buffer: Buffer,
   quality: 'low' | 'medium' | 'high' = 'medium'
 ): Promise<Buffer> {
-  const settingMap: Record<string, string> = {
+  const settingMap: Record<
+    'low' | 'medium' | 'high',
+    string
+  > = {
     low: '/screen',
     medium: '/ebook',
     high: '/printer',
@@ -166,29 +314,43 @@ export async function compressPdf(
   const setting =
     settingMap[quality] ?? '/ebook';
 
-  return withTempDir(async (dir) => {
-    const input = path.join(dir, 'input.pdf');
-    const output = path.join(dir, 'output.pdf');
+  const gsBinary =
+    getGhostscriptBinary();
 
-    await fs.writeFile(input, buffer);
+  await requireGhostscript();
+
+  return withTempDir(async (dir) => {
+    const input = path.join(
+      dir,
+      'input.pdf'
+    );
+
+    const output = path.join(
+      dir,
+      'compressed.pdf'
+    );
+
+    await fs.writeFile(
+      input,
+      buffer
+    );
 
     try {
       await execFileAsync(
-        process.platform === 'win32'
-          ? 'gswin64c'
-          : 'gs',
+        gsBinary,
         [
           '-sDEVICE=pdfwrite',
           '-dCompatibilityLevel=1.4',
           `-dPDFSETTINGS=${setting}`,
           '-dNOPAUSE',
           '-dBATCH',
-          '-dQUIET',
+          '-dSAFER',
           `-sOutputFile=${output}`,
           input,
         ],
         {
-          timeout: 60_000,
+          timeout: 120_000,
+          maxBuffer: 10 * 1024 * 1024,
         }
       );
     } catch (err) {
@@ -196,16 +358,29 @@ export async function compressPdf(
         'ghostscript (gs)',
         err
       );
+
+      throw new SystemToolError(
+        'Ghostscript failed to compress the PDF.'
+      );
     }
 
-    return fs.readFile(output);
+    const result =
+      await fs.readFile(output);
+
+    if (!result.length) {
+      throw new SystemToolError(
+        'Compression produced an empty PDF.'
+      );
+    }
+
+    return result;
   });
 }
 
-/**
- * Rasterize every page of a PDF into JPG
- * using pdftoppm (poppler-utils).
- */
+/* -------------------------------------------------------------------------- */
+/* PDF -> JPG                                                                 */
+/* -------------------------------------------------------------------------- */
+
 export async function pdfToJpgPages(
   buffer: Buffer
 ): Promise<Buffer[]> {
@@ -220,7 +395,10 @@ export async function pdfToJpgPages(
       'page'
     );
 
-    await fs.writeFile(input, buffer);
+    await fs.writeFile(
+      input,
+      buffer
+    );
 
     try {
       await execFileAsync(
@@ -233,7 +411,8 @@ export async function pdfToJpgPages(
           outPrefix,
         ],
         {
-          timeout: 60_000,
+          timeout: 120_000,
+          maxBuffer: 10 * 1024 * 1024,
         }
       );
     } catch (err) {
@@ -247,32 +426,44 @@ export async function pdfToJpgPages(
       await fs.readdir(dir)
     )
       .filter(
-        (f) =>
-          f.startsWith('page') &&
-          f.endsWith('.jpg')
+        (file) =>
+          file.startsWith('page') &&
+          file.endsWith('.jpg')
       )
-      .sort();
+      .sort((a, b) => {
+        const aNumber =
+          Number(
+            a.match(/-(\d+)\.jpg$/)?.[1] ?? 0
+          );
 
-    if (files.length === 0) {
+        const bNumber =
+          Number(
+            b.match(/-(\d+)\.jpg$/)?.[1] ?? 0
+          );
+
+        return aNumber - bNumber;
+      });
+
+    if (!files.length) {
       throw new SystemToolError(
         'No pages could be rendered from this PDF.'
       );
     }
 
     return Promise.all(
-      files.map((f) =>
+      files.map((file) =>
         fs.readFile(
-          path.join(dir, f)
+          path.join(dir, file)
         )
       )
     );
   });
 }
 
-/**
- * Repair/rebuild a damaged PDF using qpdf
- * with Ghostscript fallback.
- */
+/* -------------------------------------------------------------------------- */
+/* Repair PDF                                                                 */
+/* -------------------------------------------------------------------------- */
+
 export async function repairPdf(
   buffer: Buffer
 ): Promise<Buffer> {
@@ -292,7 +483,10 @@ export async function repairPdf(
       'gs-repaired.pdf'
     );
 
-    await fs.writeFile(input, buffer);
+    await fs.writeFile(
+      input,
+      buffer
+    );
 
     async function isValidPdf(
       filePath: string
@@ -318,31 +512,37 @@ export async function repairPdf(
       }
     }
 
-    // Stage 1: QPDF
+    /* ----------------------------- */
+    /* Stage 1: QPDF                 */
+    /* ----------------------------- */
+
+    let qpdfAvailable = true;
+
     try {
-      await execFileAsync(
-        'qpdf',
-        [
-          '--warning-exit-0',
-          '--object-streams=generate',
-          '--stream-data=compress',
-          '--',
-          input,
-          qpdfOutput,
-        ],
-        {
-          timeout: 60_000,
-          maxBuffer:
-            10 * 1024 * 1024,
-        }
-      );
+      await requireQpdf();
+    } catch {
+      qpdfAvailable = false;
+    }
 
-      const exists = await fs
-        .access(qpdfOutput)
-        .then(() => true)
-        .catch(() => false);
+    if (qpdfAvailable) {
+      try {
+        await execFileAsync(
+          'qpdf',
+          [
+            '--warning-exit-0',
+            '--object-streams=generate',
+            '--stream-data=compress',
+            '--',
+            input,
+            qpdfOutput,
+          ],
+          {
+            timeout: 120_000,
+            maxBuffer:
+              10 * 1024 * 1024,
+          }
+        );
 
-      if (exists) {
         const repaired =
           await fs.readFile(
             qpdfOutput
@@ -350,51 +550,57 @@ export async function repairPdf(
 
         if (
           repaired.length > 0 &&
-          await isValidPdf(
-            qpdfOutput
-          )
+          await isValidPdf(qpdfOutput)
         ) {
           return repaired;
         }
+      } catch (err) {
+        console.warn(
+          'QPDF repair failed:',
+          err
+        );
       }
-    } catch (err) {
+    } else {
       console.warn(
-        'QPDF repair failed:',
-        err
+        'QPDF is unavailable; trying Ghostscript.'
       );
     }
 
-    // Stage 2: Ghostscript fallback
+    /* ----------------------------- */
+    /* Stage 2: Ghostscript          */
+    /* ----------------------------- */
+
+    const gsBinary =
+      getGhostscriptBinary();
+
+    let gsAvailable = true;
+
     try {
-      const gsBinary =
-        process.platform === 'win32'
-          ? 'gswin64c'
-          : 'gs';
+      await requireGhostscript();
+    } catch {
+      gsAvailable = false;
+    }
 
-      await execFileAsync(
-        gsBinary,
-        [
-          '-sDEVICE=pdfwrite',
-          '-dCompatibilityLevel=1.7',
-          '-dNOPAUSE',
-          '-dBATCH',
-          '-dSAFER',
-          `-sOutputFile=${gsOutput}`,
-          input,
-        ],
-        {
-          timeout: 120_000,
-          maxBuffer:
-            10 * 1024 * 1024,
-        }
-      );
+    if (gsAvailable) {
+      try {
+        await execFileAsync(
+          gsBinary,
+          [
+            '-sDEVICE=pdfwrite',
+            '-dCompatibilityLevel=1.7',
+            '-dNOPAUSE',
+            '-dBATCH',
+            '-dSAFER',
+            `-sOutputFile=${gsOutput}`,
+            input,
+          ],
+          {
+            timeout: 180_000,
+            maxBuffer:
+              10 * 1024 * 1024,
+          }
+        );
 
-      const exists = await fs
-        .access(gsOutput)
-        .then(() => true)
-        .catch(() => false);
-
-      if (exists) {
         const repaired =
           await fs.readFile(
             gsOutput
@@ -402,17 +608,21 @@ export async function repairPdf(
 
         if (
           repaired.length > 0 &&
-          await isValidPdf(
-            gsOutput
-          )
+          await isValidPdf(gsOutput)
         ) {
           return repaired;
         }
+      } catch (err) {
+        console.warn(
+          'Ghostscript repair failed:',
+          err
+        );
       }
-    } catch (err) {
-      console.warn(
-        'Ghostscript repair failed:',
-        err
+    }
+
+    if (!qpdfAvailable && !gsAvailable) {
+      throw new SystemToolError(
+        'PDF repair is unavailable because neither qpdf nor Ghostscript is installed.'
       );
     }
 
@@ -422,12 +632,133 @@ export async function repairPdf(
   });
 }
 
-/**
- * Convert a PDF to PDF/A-2b using Ghostscript.
- */
+/* -------------------------------------------------------------------------- */
+/* Ghostscript resource discovery                                             */
+/* -------------------------------------------------------------------------- */
+
+async function findExistingPath(
+  candidates: string[]
+): Promise<string | null> {
+  for (const candidate of candidates) {
+    try {
+      await fs.access(candidate);
+      return candidate;
+    } catch {
+      // Try next candidate.
+    }
+  }
+
+  return null;
+}
+
+async function getGhostscriptVersion(): Promise<string> {
+  const binary =
+    getGhostscriptBinary();
+
+  try {
+    const result =
+      await execFileAsync(
+        binary,
+        ['--version'],
+        {
+          timeout: 10_000,
+        }
+      );
+
+    return result.stdout.trim();
+  } catch (err) {
+    friendlyMissingBinary(
+      'ghostscript (gs)',
+      err
+    );
+  }
+}
+
+async function findPdfaResources(): Promise<{
+  pdfaDef: string;
+  iccProfile: string;
+}> {
+  const version =
+    await getGhostscriptVersion();
+
+  const candidates =
+    process.platform === 'win32'
+      ? {
+          pdfa: [
+            path.join(
+              'C:\\Program Files\\gs',
+              `gs${version}`,
+              'lib',
+              'PDFA_def.ps'
+            ),
+            path.join(
+              'C:\\Program Files\\gs',
+              `gs${version}`,
+              'lib',
+              'PDFA_def.ps'
+            ),
+          ],
+
+          icc: [
+            path.join(
+              'C:\\Program Files\\gs',
+              `gs${version}`,
+              'iccprofiles',
+              'srgb.icc'
+            ),
+          ],
+        }
+      : {
+          pdfa: [
+            `/usr/share/ghostscript/${version}/lib/PDFA_def.ps`,
+            `/usr/share/ghostscript/${version}/lib/PDFA_def.ps`,
+            '/usr/share/ghostscript/lib/PDFA_def.ps',
+          ],
+
+          icc: [
+            '/usr/share/color/icc/ghostscript/srgb.icc',
+            '/usr/share/ghostscript/iccprofiles/srgb.icc',
+            `/usr/share/ghostscript/${version}/iccprofiles/srgb.icc`,
+          ],
+        };
+
+  const pdfaDef =
+    await findExistingPath(
+      candidates.pdfa
+    );
+
+  const iccProfile =
+    await findExistingPath(
+      candidates.icc
+    );
+
+  if (!pdfaDef) {
+    throw new SystemToolError(
+      `Ghostscript PDF/A definition file was not found. Ghostscript version: ${version}`
+    );
+  }
+
+  if (!iccProfile) {
+    throw new SystemToolError(
+      `Ghostscript sRGB ICC profile was not found. Ghostscript version: ${version}`
+    );
+  }
+
+  return {
+    pdfaDef,
+    iccProfile,
+  };
+}
+
+/* -------------------------------------------------------------------------- */
+/* PDF -> PDF/A-2b                                                            */
+/* -------------------------------------------------------------------------- */
+
 export async function pdfToPdfA(
   buffer: Buffer
 ): Promise<Buffer> {
+  await requireGhostscript();
+
   return withTempDir(async (dir) => {
     const input = path.join(
       dir,
@@ -439,80 +770,20 @@ export async function pdfToPdfA(
       'output-pdfa.pdf'
     );
 
-    await fs.writeFile(input, buffer);
+    await fs.writeFile(
+      input,
+      buffer
+    );
 
-    const gsBinary =
-      process.platform === 'win32'
-        ? 'gswin64c'
-        : 'gs';
+    const {
+      pdfaDef: originalPdfaDef,
+      iccProfile,
+    } = await findPdfaResources();
 
-    let gsRoot: string;
-
-    try {
-      if (process.platform === 'win32') {
-        gsRoot =
-          'C:\\Program Files\\gs\\gs10.07.1';
-      } else {
-        const version =
-          execFileSync(
-            'gs',
-            ['--version'],
-            {
-              encoding: 'utf8',
-            }
-          ).trim();
-
-        gsRoot = path.join(
-          '/usr/share/ghostscript',
-          version
-        );
-      }
-    } catch (err) {
-      friendlyMissingBinary(
-        'ghostscript (gs)',
-        err
-      );
-    }
-
-    const originalPdfaDef =
-      path.join(
-        gsRoot!,
-        'lib',
-        'PDFA_def.ps'
-      );
-
-    const iccProfile =
-      path.join(
-        gsRoot!,
-        'iccprofiles',
-        'srgb.icc'
-      );
-
-    const pdfaDef =
-      path.join(
-        dir,
-        'PDFA_def.ps'
-      );
-
-    try {
-      await fs.access(
-        originalPdfaDef
-      );
-    } catch {
-      throw new SystemToolError(
-        `Ghostscript PDF/A definition file was not found: ${originalPdfaDef}`
-      );
-    }
-
-    try {
-      await fs.access(
-        iccProfile
-      );
-    } catch {
-      throw new SystemToolError(
-        `Ghostscript ICC profile was not found: ${iccProfile}`
-      );
-    }
+    const pdfaDef = path.join(
+      dir,
+      'PDFA_def.ps'
+    );
 
     let pdfaDefContent =
       await fs.readFile(
@@ -523,14 +794,8 @@ export async function pdfToPdfA(
     const escapedIccPath =
       iccProfile
         .replace(/\\/g, '/')
-        .replace(
-          /\(/g,
-          '\\('
-        )
-        .replace(
-          /\)/g,
-          '\\)'
-        );
+        .replace(/\(/g, '\\(')
+        .replace(/\)/g, '\\)');
 
     pdfaDefContent =
       pdfaDefContent.replace(
@@ -544,57 +809,44 @@ export async function pdfToPdfA(
       'utf8'
     );
 
+    const gsBinary =
+      getGhostscriptBinary();
+
     try {
-      const result =
-        await execFileAsync(
-          gsBinary,
-          [
-            '-dBATCH',
-            '-dNOPAUSE',
-            '-dSAFER',
+      await execFileAsync(
+        gsBinary,
+        [
+          '-dBATCH',
+          '-dNOPAUSE',
+          '-dSAFER',
 
-            `--permit-file-read=${pdfaDef}`,
-            `--permit-file-read=${iccProfile}`,
+          `--permit-file-read=${pdfaDef}`,
+          `--permit-file-read=${iccProfile}`,
+          `--permit-file-read=${input}`,
 
-            '-sDEVICE=pdfwrite',
+          '-sDEVICE=pdfwrite',
 
-            '-dPDFA=2',
-            '-dPDFACompatibilityPolicy=1',
+          '-dPDFA=2',
+          '-dPDFACompatibilityPolicy=1',
 
-            '-sColorConversionStrategy=RGB',
-            `-sOutputICCProfile=${iccProfile}`,
+          '-sColorConversionStrategy=RGB',
+          `-sOutputICCProfile=${iccProfile}`,
 
-            `-sOutputFile=${output}`,
+          `-sOutputFile=${output}`,
 
-            pdfaDef,
-            input,
-          ],
-          {
-            timeout: 120_000,
-            maxBuffer:
-              10 * 1024 * 1024,
-          }
-        );
-
-      if (result.stdout) {
-        console.log(
-          'Ghostscript PDF/A stdout:',
-          result.stdout
-        );
-      }
-
-      if (result.stderr) {
-        console.warn(
-          'Ghostscript PDF/A stderr:',
-          result.stderr
-        );
-      }
+          pdfaDef,
+          input,
+        ],
+        {
+          timeout: 180_000,
+          maxBuffer:
+            10 * 1024 * 1024,
+        }
+      );
     } catch (err) {
       if (
-        err instanceof Error &&
-        'code' in err &&
-        (err as NodeJS.ErrnoException)
-          .code === 'ENOENT'
+        isErrnoException(err) &&
+        err.code === 'ENOENT'
       ) {
         friendlyMissingBinary(
           'ghostscript (gs)',
@@ -611,16 +863,8 @@ export async function pdfToPdfA(
 
       console.error(
         'Ghostscript PDF/A conversion failed:',
-        execError.message ||
-          err
+        execError.message || err
       );
-
-      if (execError.stdout) {
-        console.error(
-          'Ghostscript stdout:',
-          execError.stdout
-        );
-      }
 
       if (execError.stderr) {
         console.error(
@@ -633,18 +877,6 @@ export async function pdfToPdfA(
         execError.stderr?.trim() ||
           execError.message ||
           'Ghostscript failed to create the PDF/A file.'
-      );
-    }
-
-    const exists =
-      await fs
-        .access(output)
-        .then(() => true)
-        .catch(() => false);
-
-    if (!exists) {
-      throw new SystemToolError(
-        'Ghostscript did not produce a PDF/A file.'
       );
     }
 
